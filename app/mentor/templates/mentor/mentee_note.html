@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Mentee Review: {{ student.name }}{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge-role badge-role-mentor">
+                <i class="bi bi-person-check-fill"></i> Faculty Mentorship
+            </span>
+            <span class="text-secondary small">&bull;</span>
+            <span class="text-secondary small">Mentee Review</span>
+        </div>
+        <h1 class="h3 fw-bold text-slate-900 mb-0">Review: {{ student.name }}</h1>
+        <small class="text-secondary">{{ student.email }}</small>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="{{ url_for('mentor.dashboard') }}">
+        <i class="bi bi-arrow-left"></i> Return to Mentees List
+    </a>
+</div>
+
+<!-- Mentee Profile & Status Banner -->
+<div class="card-modern p-4 mb-4">
+    <div class="row align-items-center g-3">
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="user-avatar-pill" style="width: 52px; height: 52px; font-size: 1.35rem;">
+                    {{ student.name[:1]|upper }}
+                </div>
+                <div>
+                    <h5 class="fw-bold text-slate-900 mb-1">{{ student.name }}</h5>
+                    <div class="text-secondary small">
+                        {% if profile and profile.branch and profile.branch != 'Not specified' %}
+                            {{ profile.branch }} &bull; Year {{ profile.year }}
+                        {% else %}
+                            Academic profile pending update
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="small fw-semibold text-secondary text-uppercase mb-1" style="font-size: 0.725rem; letter-spacing: 0.05em;">
+                Target Career Track
+            </div>
+            <div class="fw-bold text-slate-900">
+                {{ target_job_role.name if target_job_role else "No target role chosen" }}
+            </div>
+            {% if gap_percentage is not none %}
+                <small class="text-secondary">Skill Gap: <strong>{{ "%g"|format(gap_percentage) }}%</strong></small>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4 text-md-end">
+            <div class="small fw-semibold text-secondary text-uppercase mb-1" style="font-size: 0.725rem; letter-spacing: 0.05em;">
+                Intervention Status
+            </div>
+            {% if current_at_risk %}
+                <span class="badge-risk fs-6 px-3 py-1">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Flagged At Risk
+                </span>
+            {% else %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-semibold">
+                    <i class="bi bi-check2"></i> Standard Progress
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Note Submission Form -->
+    <div class="col-lg-5">
+        <div class="card-modern p-4 sticky-top" style="top: 80px;">
+            <h2 class="h5 fw-bold text-slate-900 mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-pencil-square text-primary"></i> Log Mentoring Review
+            </h2>
+            
+            <form method="post" action="{{ url_for('mentor.mentee_note', student_id=student.id) }}">
+                <div class="mb-3">
+                    <label class="form-label" for="note_text">
+                        Mentoring Observations &amp; Action Plan <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" id="note_text" name="note_text" rows="5" 
+                              placeholder="e.g., Reviewed DSA practice problem progress. Advised student to solve 15 tree/graph questions by end of month..." required></textarea>
+                    <div class="form-text small text-secondary">
+                        Logged notes are visible to the student on their dashboard and documented in historical records.
+                    </div>
+                </div>
+
+                <div class="form-check form-switch p-3 bg-light rounded-3 border mb-4">
+                    <input class="form-check-input ms-0 me-3" id="at_risk" name="at_risk" type="checkbox" {% if current_at_risk %}checked{% endif %}>
+                    <label class="form-check-label fw-semibold text-slate-800" for="at_risk">
+                        Flag as At-Risk Student
+                    </label>
+                    <div class="small text-danger mt-1">
+                        Surfaces student on the Placement Officer (TPO) dashboard for early career intervention.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2" type="submit">
+                    <i class="bi bi-floppy-fill"></i> Save Mentoring Note
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mentee Skills & Verified Assessment Override -->
+    <div class="col-lg-7">
+        <!-- Verified Assessment Section -->
+        <div class="card-modern mb-4">
+            <div class="card-header-modern">
+                <h2 class="card-header-title">
+                    <i class="bi bi-patch-check-fill text-success"></i> Skill Verification &amp; Annotations
+                </h2>
+                <span class="badge bg-light text-secondary border small">{{ skills|length }} Skills</span>
+            </div>
+            <div class="p-4">
+                <p class="text-secondary small mb-3">
+                    As a mentor, you can annotate or override self-reported proficiencies with a verified faculty assessment:
+                </p>
+
+                {% if skills %}
+                    <div class="vstack gap-3">
+                        {% for skill in skills %}
+                            {% set self_lvl = self_level_by_skill.get(skill.id, "not_started") %}
+                            {% set mentor_lvl = mentor_level_by_skill.get(skill.id) %}
+                            {% set effective_lvl = effective_level_by_skill.get(skill.id, "not_started") %}
+
+                            <div class="p-3 bg-light rounded-3 border">
+                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-2">
+                                    <div>
+                                        <div class="fw-semibold text-slate-900">{{ skill.name }}</div>
+                                        <div class="small text-muted">
+                                            Self-reported: <span class="badge-proficiency badge-proficiency-{{ self_lvl }} py-0 px-2" style="font-size: 0.75rem;">{{ self_lvl.replace('_', ' ').title() }}</span>
+                                            {% if mentor_lvl %}
+                                                &bull; Verified: <span class="badge-proficiency badge-proficiency-{{ mentor_lvl }} py-0 px-2 text-success" style="font-size: 0.75rem;">{{ mentor_lvl.replace('_', ' ').title() }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <form method="post" action="{{ url_for('mentor.mentee_note', student_id=student.id) }}" class="d-flex align-items-center gap-2">
+                                        <input type="hidden" name="action" value="verify_skill">
+                                        <input type="hidden" name="skill_id" value="{{ skill.id }}">
+                                        <select name="level" class="form-select form-select-sm" style="width: 140px;">
+                                            {% for lvl in ["not_started", "learning", "comfortable", "confident"] %}
+                                                <option value="{{ lvl }}" {% if effective_lvl == lvl %}selected{% endif %}>
+                                                    {{ lvl.replace('_', ' ').title() }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-primary btn-sm" title="Save verified assessment">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-secondary mb-0">No skills defined for student's target role yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Mentoring Notes History -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h2 class="card-header-title">
+                    <i class="bi bi-clock-history text-primary"></i> Mentoring Review Timeline
+                </h2>
+                <span class="badge bg-light text-secondary border small">{{ notes|length }} Notes</span>
+            </div>
+            <div class="p-4">
+                {% if notes %}
+                    <div class="vstack gap-3">
+                        {% for note in notes|reverse %}
+                            <article class="p-3 rounded-3 border bg-light {% if note.at_risk %}border-danger-subtle bg-danger-subtle{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="small text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>{{ note.created_at.strftime("%Y-%m-%d %H:%M") }}
+                                    </span>
+                                    {% if note.at_risk %}
+                                        <span class="badge text-bg-danger">At Risk</span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">Not At Risk</span>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0 text-slate-800 small" style="white-space: pre-wrap;">{{ note.note_text }}</p>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state py-4">
+                        <div class="empty-state-icon" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <h6 class="empty-state-title">No mentoring notes yet</h6>
+                        <p class="empty-state-desc mb-0">Use the form on the left to document your first session with {{ student.name }}.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

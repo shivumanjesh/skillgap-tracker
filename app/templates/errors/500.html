@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Internal Error{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-7 col-lg-5 text-center">
+        <div class="card-modern p-5">
+            <div class="empty-state-icon mx-auto text-danger" style="background-color: var(--status-risk-bg);">
+                <i class="bi bi-cpu text-danger"></i>
+            </div>
+            <h1 class="h3 fw-bold text-slate-900 mb-2">Unexpected Error</h1>
+            <p class="text-secondary mb-4">
+                An unexpected server-side error occurred while processing this operation. Our system administrators have been notified.
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="bi bi-house me-1"></i> Return Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge-role badge-role-student">
+                <i class="bi bi-mortarboard-fill"></i> Student Dashboard
+            </span>
+            {% if profile and profile.branch and profile.branch != 'Not specified' %}
+                <span class="text-secondary small">&bull;</span>
+                <span class="text-secondary small fw-medium">{{ profile.branch }} (Year {{ profile.year }})</span>
+            {% endif %}
+        </div>
+        <h1 class="h3 fw-bold text-slate-900 mb-0">Welcome, {{ current_user.name }}</h1>
+    </div>
+    
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="{{ url_for('student.profile') }}">
+            <i class="bi bi-person-gear"></i> Academic Profile
+        </a>
+        <a class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" href="{{ url_for('student.target_role') }}">
+            <i class="bi bi-briefcase"></i> Change Target Role
+        </a>
+        {% if target_job_role and skills %}
+            <a class="btn btn-primary btn-sm d-flex align-items-center gap-1" href="{{ url_for('student.assessment') }}">
+                <i class="bi bi-pencil-square"></i> Update Proficiencies
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+{% if not target_job_role %}
+    <!-- Empty State: No Target Role -->
+    <div class="card-modern p-5 text-center my-4">
+        <div class="empty-state-icon text-primary mx-auto" style="background-color: var(--brand-primary-light);">
+            <i class="bi bi-crosshair text-primary"></i>
+        </div>
+        <h2 class="h4 fw-bold text-slate-900 mb-2">Choose your target career role</h2>
+        <p class="text-secondary max-w-md mx-auto mb-4">
+            To start benchmarking your employability and identifying skill gaps, select a target career profile curated by your college Placement Cell.
+        </p>
+        <div>
+            <a class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2" href="{{ url_for('student.target_role') }}">
+                <i class="bi bi-check2-circle"></i> Select Target Job Role
+            </a>
+        </div>
+    </div>
+{% else %}
+    <!-- KPI Summary Row -->
+    <div class="row g-3 mb-4">
+        <!-- Target Role KPI -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-label">Target Role</div>
+                        <div class="h5 fw-bold text-slate-900 text-truncate mb-1" style="max-width: 170px;" title="{{ target_job_role.name }}">
+                            {{ target_job_role.name }}
+                        </div>
+                    </div>
+                    <div class="kpi-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
+                </div>
+                <div class="kpi-subtext mt-2">
+                    <span class="fw-semibold text-slate-700">{{ skills|length }}</span> required skills
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Gap KPI -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-label">Overall Gap</div>
+                        {% if gap_percentage is not none %}
+                            <div class="kpi-value text-slate-900">
+                                {{ "%g"|format(gap_percentage) }}%
+                            </div>
+                        {% else %}
+                            <div class="h5 fw-bold text-muted mb-1">Undefined</div>
+                        {% endif %}
+                    </div>
+                    <div class="kpi-icon-wrapper" style="background-color: {% if gap_percentage is not none and gap_percentage <= 30 %}#ecfdf5; color: #059669;{% else %}#fff1f2; color: #e11d48;{% endif %}">
+                        <i class="bi bi-speedometer"></i>
+                    </div>
+                </div>
+                <div class="kpi-subtext mt-2">
+                    {% if gap_percentage is not none %}
+                        <span class="fw-semibold">Skill Gap: {{ "%g"|format(gap_percentage) }}%</span>
+                    {% else %}
+                        <span class="text-muted">Role has no required skills yet</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Confident Skills KPI -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-label">Verified / Confident</div>
+                        <div class="kpi-value text-success">
+                            {{ level_counts.confident }} <span class="fs-6 text-muted fw-normal">/ {{ skills|length }}</span>
+                        </div>
+                    </div>
+                    <div class="kpi-icon-wrapper" style="background-color: #ecfdf5; color: #059669;">
+                        <i class="bi bi-check2-all"></i>
+                    </div>
+                </div>
+                <div class="kpi-subtext mt-2">
+                    {% if skills|length > 0 %}
+                        {{ ((level_counts.confident / skills|length) * 100)|round|int }}% ready for recruitment
+                    {% else %}
+                        0 skills defined
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Mentor KPI -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="kpi-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-label">Faculty Mentor</div>
+                        <div class="h6 fw-bold text-slate-900 text-truncate mb-1" style="max-width: 170px;">
+                            {{ mentor.name if mentor else "Unassigned" }}
+                        </div>
+                    </div>
+                    <div class="kpi-icon-wrapper" style="background-color: #f3e8ff; color: #7e22ce;">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                </div>
+                <div class="kpi-subtext mt-2">
+                    {% if mentor %}
+                        <span class="text-secondary small">{{ mentor.email }}</span>
+                    {% else %}
+                        <span class="text-muted small">Contact Placement Cell</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Readiness Progress Banner -->
+    {% if gap_percentage is not none %}
+        {% set ready_percentage = (100 - gap_percentage)|round(2) %}
+        <div class="card-modern p-4 mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-2">
+                <div>
+                    <h5 class="fw-bold text-slate-900 mb-0">Placement Readiness Index</h5>
+                    <small class="text-secondary">Benchmark based on required competencies for {{ target_job_role.name }}</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    {% if gap_percentage == 0 %}
+                        <span class="badge bg-success text-white px-3 py-1 rounded-pill">100% Placement Ready</span>
+                    {% elif gap_percentage <= 30 %}
+                        <span class="badge bg-info-subtle text-info-emphasis border px-3 py-1 rounded-pill">Advanced Readiness ({{ ready_percentage }}%)</span>
+                    {% elif gap_percentage <= 70 %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis border px-3 py-1 rounded-pill">Developing Competency ({{ ready_percentage }}%)</span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border px-3 py-1 rounded-pill">Needs Intensive Focus ({{ ready_percentage }}%)</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="progress-modern mt-2" style="height: 12px;">
+                <div class="progress-bar {% if gap_percentage <= 30 %}progress-bar-success{% elif gap_percentage <= 70 %}progress-bar-warning{% else %}progress-bar-danger{% endif %}" 
+                     role="progressbar" 
+                     style="width: {{ ready_percentage }}%;" 
+                     aria-valuenow="{{ ready_percentage }}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Visual Analytics & Priority Focus -->
+    <div class="row g-4 mb-4">
+        <!-- Proficiency Breakdown Chart -->
+        <div class="col-lg-5">
+            <div class="card-modern h-100">
+                <div class="card-header-modern">
+                    <h2 class="card-header-title">
+                        <i class="bi bi-pie-chart-fill text-primary"></i> Proficiency Breakdown
+                    </h2>
+                </div>
+                <div class="p-4 d-flex flex-column align-items-center justify-content-center" style="min-height: 280px;">
+                    {% if skills %}
+                        <div style="width: 220px; height: 220px; position: relative;">
+                            <canvas id="studentProficiencyChart"></canvas>
+                        </div>
+                        <div class="d-flex flex-wrap justify-content-center gap-3 mt-3 pt-2 border-top w-100">
+                            <div class="d-flex align-items-center gap-1 small">
+                                <span class="badge bg-success p-1 rounded-circle"></span> Confident: <strong>{{ level_counts.confident }}</strong>
+                            </div>
+                            <div class="d-flex align-items-center gap-1 small">
+                                <span class="badge bg-primary p-1 rounded-circle"></span> Comfortable: <strong>{{ level_counts.comfortable }}</strong>
+                            </div>
+                            <div class="d-flex align-items-center gap-1 small">
+                                <span class="badge bg-warning p-1 rounded-circle"></span> Learning: <strong>{{ level_counts.learning }}</strong>
+                            </div>
+                            <div class="d-flex align-items-center gap-1 small">
+                                <span class="badge bg-secondary p-1 rounded-circle"></span> Not Started: <strong>{{ level_counts.not_started }}</strong>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-secondary mb-0">No skills defined for this job role yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Action Items (Skills with gap) -->
+        <div class="col-lg-7">
+            <div class="card-modern h-100">
+                <div class="card-header-modern">
+                    <h2 class="card-header-title">
+                        <i class="bi bi-fire text-danger"></i> Priority Learning Targets
+                    </h2>
+                    <span class="badge bg-light text-secondary border small">{{ priority_skills|length }} pending</span>
+                </div>
+                <div class="p-4">
+                    {% if priority_skills %}
+                        <p class="text-secondary small mb-3">
+                            Focus your practice on these skills to accelerate your placement readiness score:
+                        </p>
+                        <div class="vstack gap-2">
+                            {% for item in priority_skills[:4] %}
+                                <div class="d-flex align-items-center justify-content-between p-3 rounded-3 border bg-light">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-circle p-2 {% if item.level == 'not_started' %}bg-secondary-subtle text-secondary{% elif item.level == 'learning' %}bg-warning-subtle text-warning{% else %}bg-primary-subtle text-primary{% endif %}">
+                                            <i class="bi {% if item.level == 'not_started' %}bi-circle{% elif item.level == 'learning' %}bi-hourglass-split{% else %}bi-check-circle{% endif %}"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-slate-900">{{ item.skill.name }}</div>
+                                            <small class="text-secondary">Current: {{ item.level_title }}</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge-proficiency badge-proficiency-{{ item.level }}">
+                                        {{ item.level_title }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if priority_skills|length > 4 %}
+                            <div class="text-center mt-3">
+                                <small class="text-muted">+ {{ priority_skills|length - 4 }} more skills need attention</small>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-trophy-fill text-warning fs-1 mb-2"></i>
+                            <h6 class="fw-bold text-slate-900">Congratulations!</h6>
+                            <p class="text-secondary small mb-0">All required skills for this role are verified at Confident level.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Required Skills Table -->
+    <div class="card-modern mb-4">
+        <div class="card-header-modern">
+            <h2 class="card-header-title">
+                <i class="bi bi-list-check text-primary"></i> Required Skills Checklist
+            </h2>
+            <a class="btn btn-outline-primary btn-sm" href="{{ url_for('student.assessment') }}">
+                <i class="bi bi-pencil-square me-1"></i> Update Proficiencies
+            </a>
+        </div>
+        <div class="p-0">
+            {% if skills %}
+                <div class="table-responsive">
+                    <table class="table table-modern align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 45%;">Skill Name</th>
+                                <th scope="col" style="width: 30%;">Current Proficiency</th>
+                                <th scope="col" style="width: 25%;" class="text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for skill in skills %}
+                                {% set cur_level = proficiency_by_skill.get(skill.id, "Not Started") %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold text-slate-900">{{ skill.name }}</div>
+                                    </td>
+                                    <td>
+                                        {% set badge_class = cur_level|lower|replace(' ', '_') %}
+                                        <span class="badge-proficiency badge-proficiency-{{ badge_class }}">
+                                            {% if badge_class == 'confident' %}
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            {% elif badge_class == 'comfortable' %}
+                                                <i class="bi bi-check-circle"></i>
+                                            {% elif badge_class == 'learning' %}
+                                                <i class="bi bi-hourglass-split"></i>
+                                            {% else %}
+                                                <i class="bi bi-dash-circle"></i>
+                                            {% endif %}
+                                            {{ cur_level }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        {% if cur_level == "Confident" %}
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small rounded-pill">
+                                                <i class="bi bi-check-lg"></i> Benchmark Met
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border px-2 py-1 small rounded-pill">
+                                                Skill Gap
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-journal-x"></i>
+                    </div>
+                    <div class="empty-state-title">No skills defined</div>
+                    <div class="empty-state-desc">No skills have been added to this job role yet. Check back once the Placement Cell updates the role requirements.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Mentor Feedback & Notes Section -->
+    <div class="card-modern mb-4">
+        <div class="card-header-modern">
+            <h2 class="card-header-title">
+                <i class="bi bi-chat-left-quote-fill text-purple"></i> Faculty Mentor Guidance &amp; Action Items
+            </h2>
+            {% if mentor %}
+                <span class="small text-secondary">Assigned: {{ mentor.name }}</span>
+            {% endif %}
+        </div>
+        <div class="p-4">
+            {% if mentor_notes %}
+                <div class="timeline vstack gap-3">
+                    {% for note in mentor_notes %}
+                        <div class="p-3 rounded-3 border bg-light {% if note.at_risk %}border-danger-subtle bg-danger-subtle{% endif %}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="small fw-semibold text-slate-800">
+                                    <i class="bi bi-person-check text-primary me-1"></i> Mentor Note
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if note.at_risk %}
+                                        <span class="badge-risk">
+                                            <i class="bi bi-exclamation-octagon-fill"></i> Flagged for Intervention
+                                        </span>
+                                    {% endif %}
+                                    <span class="small text-muted">
+                                        <i class="bi bi-clock me-1"></i>{{ note.created_at.strftime("%b %d, %Y %H:%M") }}
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="mb-0 text-slate-700 small" style="white-space: pre-wrap;">{{ note.note_text }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4 text-secondary">
+                    <i class="bi bi-chat-square-dots fs-2 text-muted mb-2 d-block"></i>
+                    <p class="small mb-0">No mentoring notes logged yet. Once your faculty mentor reviews your progress, action items will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if skills and gap_percentage is not none %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('studentProficiencyChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Confident', 'Comfortable', 'Learning', 'Not Started'],
+                datasets: [{
+                    data: [
+                        {{ level_counts.confident }},
+                        {{ level_counts.comfortable }},
+                        {{ level_counts.learning }},
+                        {{ level_counts.not_started }}
+                    ],
+                    backgroundColor: ['#059669', '#2563eb', '#d97706', '#94a3b8'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = {{ skills|length }};
+                                const value = context.parsed;
+                                const pct = total > 0 ? Math.round((value / total) * 100) : 0;
+                                return ` ${context.label}: ${value} skills (${pct}%)`;
+                            }
+                        }
+                    }
+                },
+                cutout: '68%'
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

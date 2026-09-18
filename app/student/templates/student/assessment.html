@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Update Skill Proficiencies{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge-role badge-role-student">
+                <i class="bi bi-mortarboard-fill"></i> Self-Assessment
+            </span>
+        </div>
+        <h1 class="h3 fw-bold text-slate-900 mb-0">Update Skill Proficiencies</h1>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="{{ url_for('student.dashboard') }}">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<!-- Proficiency Scale Guide -->
+<div class="card-modern p-4 mb-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+    <h6 class="fw-bold text-slate-900 mb-3 d-flex align-items-center gap-2">
+        <i class="bi bi-info-circle text-primary"></i> Employability Proficiency Benchmark Scale
+    </h6>
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <div class="p-3 bg-white rounded-3 border h-100">
+                <span class="badge-proficiency badge-proficiency-not_started mb-2">Not Started</span>
+                <p class="small text-secondary mb-0">No prior exposure, coursework, or practical usage.</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-3 bg-white rounded-3 border h-100">
+                <span class="badge-proficiency badge-proficiency-learning mb-2">Learning</span>
+                <p class="small text-secondary mb-0">Currently studying concepts, tutorials, or fundamentals.</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-3 bg-white rounded-3 border h-100">
+                <span class="badge-proficiency badge-proficiency-comfortable mb-2">Comfortable</span>
+                <p class="small text-secondary mb-0">Can implement projects and solve standard problems.</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-3 bg-white rounded-3 border h-100 border-success-subtle">
+                <span class="badge-proficiency badge-proficiency-confident mb-2">Confident</span>
+                <p class="small text-secondary mb-0">Interview-ready; fully confident in live coding or design.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if skills %}
+    <!-- Batch Update Form -->
+    <form method="post" action="{{ url_for('student.assessment') }}" id="batchAssessmentForm">
+        <input type="hidden" name="is_batch" value="1">
+        
+        <div class="row g-3 mb-4">
+            {% for skill in skills %}
+                {% set current_level = proficiency_by_skill.get(skill.id, "not_started") %}
+                <div class="col-12 col-md-6">
+                    <div class="card-modern p-4 h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold text-slate-900 mb-1">{{ skill.name }}</h5>
+                                <span class="small text-secondary">Current level: <strong>{{ current_level.replace('_', ' ').title() }}</strong></span>
+                            </div>
+                            <span class="badge-proficiency badge-proficiency-{{ current_level }}">
+                                {{ current_level.replace('_', ' ').title() }}
+                            </span>
+                        </div>
+
+                        <label class="form-label small text-secondary mb-2" for="level-select-{{ skill.id }}">
+                            Select your proficiency level:
+                        </label>
+                        <select class="form-select" id="level-select-{{ skill.id }}" name="level_{{ skill.id }}">
+                            {% for lvl in levels %}
+                                <option value="{{ lvl }}" {% if current_level == lvl %}selected{% endif %}>
+                                    {{ lvl.replace("_", " ").title() }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Sticky Bottom Bar -->
+        <div class="card-modern p-3 sticky-bottom mb-4 shadow-lg border-primary-subtle d-flex flex-row justify-content-between align-items-center">
+            <span class="text-secondary small d-none d-md-inline">
+                <i class="bi bi-shield-check text-success me-1"></i> Changes will immediately recalculate your employability readiness gap.
+            </span>
+            <div class="d-flex gap-2 ms-auto">
+                <a class="btn btn-outline-secondary" href="{{ url_for('student.dashboard') }}">Cancel</a>
+                <button class="btn btn-primary d-flex align-items-center gap-2" type="submit">
+                    <i class="bi bi-check2-circle"></i> Save All Proficiencies
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Hidden Individual Forms for Direct Single-Skill API / Test Compatibility -->
+    <div style="display: none;" aria-hidden="true">
+        {% for skill in skills %}
+            <form method="post" action="{{ url_for('student.assessment') }}" id="single-skill-form-{{ skill.id }}">
+                <input type="hidden" name="skill_id" value="{{ skill.id }}">
+                <input type="hidden" name="level" id="single-level-{{ skill.id }}" value="confident">
+            </form>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card-modern p-5 text-center">
+        <div class="empty-state-icon">
+            <i class="bi bi-journal-x"></i>
+        </div>
+        <h3 class="h5 fw-bold text-slate-900 mb-2">No skills defined</h3>
+        <p class="text-secondary mb-4">No skills have been added to your target job role yet.</p>
+        <a class="btn btn-outline-primary" href="{{ url_for('student.dashboard') }}">Return to Dashboard</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}TPO Placement Readiness Cockpit{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge-role badge-role-tpo">
+                <i class="bi bi-award-fill"></i> Training &amp; Placement Cell
+            </span>
+            <span class="text-secondary small">&bull;</span>
+            <span class="text-secondary small">Readiness Intelligence</span>
+        </div>
+        <h1 class="h3 fw-bold text-slate-900 mb-0">Placement Readiness Cockpit</h1>
+        <p class="text-secondary small mb-0">Cross-departmental employability gap tracking and proactive candidate intervention</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-success btn-sm d-flex align-items-center gap-1" href="{{ url_for('tpo.export_csv') }}" title="Download all student readiness records">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+        {% if kpis.at_risk_count > 0 %}
+            <a class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" href="{{ url_for('tpo.export_at_risk_csv') }}" title="Download flagged at-risk students for intervention">
+                <i class="bi bi-exclamation-octagon"></i> Export At-Risk List
+            </a>
+        {% endif %}
+        <a class="btn btn-primary btn-sm d-flex align-items-center gap-1" href="{{ url_for('tpo.roles') }}">
+            <i class="bi bi-card-checklist"></i> Manage Roles &amp; Skills
+        </a>
+    </div>
+</div>
+
+<!-- Institutional KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Total Students</div>
+            <div class="kpi-value text-slate-900">{{ kpis.total_students }}</div>
+            <div class="kpi-subtext">{{ kpis.with_target_role }} with target role</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">At-Risk Candidates</div>
+            <div class="kpi-value text-danger">{{ kpis.at_risk_count }}</div>
+            <div class="kpi-subtext">Flagged by mentors</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Placement Ready</div>
+            <div class="kpi-value text-success">{{ kpis.ready_count }}</div>
+            <div class="kpi-subtext">&le; 30% gap score</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Average Skill Gap</div>
+            <div class="kpi-value text-slate-900">
+                {{ kpis.average_gap ~ "%" if kpis.average_gap is not none else "N/A" }}
+            </div>
+            <div class="kpi-subtext">Across cohort</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Target Roles</div>
+            <div class="kpi-value text-primary">{{ kpis.role_count }}</div>
+            <div class="kpi-subtext">Curated tracks</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Adoption Rate</div>
+            <div class="kpi-value text-info">
+                {% if kpis.total_students > 0 %}
+                    {{ ((kpis.with_target_role / kpis.total_students) * 100)|round|int }}%
+                {% else %}
+                    0%
+                {% endif %}
+            </div>
+            <div class="kpi-subtext">Profiles defined</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Branch-wise Median Gap Table -->
+    <div class="col-lg-6">
+        <div class="card-modern h-100">
+            <div class="card-header-modern">
+                <h2 class="card-header-title">
+                    <i class="bi bi-diagram-3-fill text-primary"></i> Department &amp; Branch Readiness Breakdown
+                </h2>
+            </div>
+            <div class="p-0">
+                {% if branch_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-modern align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Department / Branch</th>
+                                    <th>Students</th>
+                                    <th>Median Gap</th>
+                                    <th class="text-end">At Risk</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in branch_stats %}
+                                    <tr>
+                                        <td class="fw-semibold text-slate-900">{{ b.name }}</td>
+                                        <td>{{ b.students }}</td>
+                                        <td>
+                                            {% if b.median_gap is not none %}
+                                                <span class="fw-semibold {% if b.median_gap <= 30 %}text-success{% elif b.median_gap <= 70 %}text-warning-emphasis{% else %}text-danger{% endif %}">
+                                                    {{ b.median_gap }}%
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted small">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            {% if b.at_risk > 0 %}
+                                                <span class="badge-risk">{{ b.at_risk }}</span>
+                                            {% else %}
+                                                <span class="badge bg-light text-muted border">0</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="p-4 text-secondary mb-0">No branch data available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- At-Risk Early Warning Box -->
+    <div class="col-lg-6">
+        <div class="card-modern h-100">
+            <div class="card-header-modern">
+                <h2 class="card-header-title text-danger">
+                    <i class="bi bi-exclamation-triangle-fill text-danger"></i> Flagged Candidates for Early Intervention
+                </h2>
+                {% if at_risk_rows %}
+                    <span class="badge bg-danger text-white rounded-pill px-2 py-1 small">{{ at_risk_rows|length }} Students</span>
+                {% endif %}
+            </div>
+            <div class="p-3" style="max-height: 340px; overflow-y: auto;">
+                {% if at_risk_rows %}
+                    <div class="vstack gap-2">
+                        {% for r in at_risk_rows %}
+                            <div class="p-3 rounded-3 border border-danger-subtle bg-danger-subtle">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div class="fw-bold text-slate-900">{{ r.student.name }}</div>
+                                    <span class="badge-risk small">
+                                        Skill Gap: {{ "%g"|format(r.gap_percentage) ~ "%" if r.gap_percentage is not none else "N/A" }}
+                                    </span>
+                                </div>
+                                <div class="small text-secondary mb-2">
+                                    <span>{{ r.student.email }}</span> &bull; 
+                                    <span>{{ r.target_job_role.name if r.target_job_role else "No Role" }}</span>
+                                    {% if r.mentor %}
+                                        &bull; <span>Mentor: <strong>{{ r.mentor.name }}</strong></span>
+                                    {% endif %}
+                                </div>
+                                {% if r.latest_note %}
+                                    <div class="p-2 bg-white rounded border border-danger-subtle small text-slate-800">
+                                        <i class="bi bi-chat-quote-fill text-danger me-1"></i> {{ r.latest_note.note_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 text-secondary">
+                        <i class="bi bi-check-circle-fill text-success fs-1 mb-2 d-block"></i>
+                        <h6 class="fw-bold text-slate-900">No candidates flagged at-risk</h6>
+                        <p class="small mb-0">Faculty mentors have not marked any students for critical placement intervention.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Student Cohort Table with Search & Filters -->
+<div class="card-modern">
+    <div class="card-header-modern flex-wrap gap-2">
+        <h2 class="card-header-title">
+            <i class="bi bi-people-fill text-primary"></i> Student Employability Readiness Roster
+        </h2>
+        <span class="badge bg-light text-secondary border small">{{ student_rows|length }} of {{ all_rows|length }} Students</span>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="p-3 bg-light border-bottom">
+        <form method="get" action="{{ url_for('tpo.dashboard') }}" class="row g-2 align-items-center">
+            <div class="col-12 col-md-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0 text-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="q" value="{{ search_query }}" class="form-control border-start-0" placeholder="Search by student name or email...">
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <select name="role_id" class="form-select form-select-sm">
+                    <option value="">All Target Roles</option>
+                    {% for role in job_roles %}
+                        <option value="{{ role.id }}" {% if selected_role_id == role.id %}selected{% endif %}>
+                            {{ role.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <select name="branch" class="form-select form-select-sm">
+                    <option value="">All Branches</option>
+                    {% for b in available_branches %}
+                        <option value="{{ b }}" {% if selected_branch == b %}selected{% endif %}>
+                            {{ b }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-12 col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Filter</button>
+                {% if search_query or selected_role_id or selected_branch or status_filter %}
+                    <a href="{{ url_for('tpo.dashboard') }}" class="btn btn-outline-secondary btn-sm" title="Clear filters">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="p-0">
+        {% if not student_rows %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="bi bi-person-x"></i>
+                </div>
+                <h3 class="empty-state-title">No students match your filter</h3>
+                <p class="empty-state-desc">Try resetting your filters or search query to see the complete student roster.</p>
+                <a href="{{ url_for('tpo.dashboard') }}" class="btn btn-outline-secondary btn-sm">Reset Filters</a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-modern align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 25%;">Student</th>
+                            <th scope="col" style="width: 22%;">Email</th>
+                            <th scope="col" style="width: 22%;">Target Job Role</th>
+                            <th scope="col" style="width: 18%;">Skill Gap</th>
+                            <th scope="col" style="width: 13%;" class="text-end">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in student_rows %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-slate-900">{{ row.student.name }}</div>
+                                    {% if row.profile and row.profile.branch and row.profile.branch != 'Not specified' %}
+                                        <small class="text-secondary">{{ row.profile.branch }} (Yr {{ row.profile.year }})</small>
+                                    {% endif %}
+                                </td>
+                                <td class="text-secondary">{{ row.student.email }}</td>
+                                <td>
+                                    {% if row.target_job_role %}
+                                        <span class="fw-medium text-slate-800">{{ row.target_job_role.name }}</span>
+                                    {% else %}
+                                        <span class="text-muted fst-italic">Not selected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if row.gap_percentage is not none %}
+                                        <div class="fw-semibold {% if row.gap_percentage <= 30 %}text-success{% elif row.gap_percentage <= 70 %}text-warning-emphasis{% else %}text-danger{% endif %}">
+                                            Skill Gap: {{ "%g"|format(row.gap_percentage) }}%
+                                        </div>
+                                    {% elif row.target_job_role %}
+                                        <span class="text-muted small">Undefined (no required skills)</span>
+                                    {% else %}
+                                        <span class="text-muted small">Undefined (no target role)</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if row.at_risk %}
+                                        <span class="badge-risk">
+                                            <i class="bi bi-exclamation-triangle-fill"></i> At Risk
+                                        </span>
+                                    {% elif row.gap_percentage is not none and row.gap_percentage <= 30 %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small rounded-pill">
+                                            Ready
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-light text-secondary border px-2 py-1 small rounded-pill">
+                                            Active
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Mentor Dashboard{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge-role badge-role-mentor">
+                <i class="bi bi-person-check-fill"></i> Faculty Mentorship
+            </span>
+        </div>
+        <h1 class="h3 fw-bold text-slate-900 mb-0">Welcome, {{ current_user.name }}</h1>
+        <p class="text-secondary small mb-0">Track cohort skill gaps, record intervention notes, and flag at-risk candidates</p>
+    </div>
+</div>
+
+<!-- Mentor KPI Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="kpi-card h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="kpi-label">Assigned Mentees</div>
+                    <div class="kpi-value text-slate-900">{{ kpis.total }}</div>
+                </div>
+                <div class="kpi-icon-wrapper" style="background-color: #f3e8ff; color: #7e22ce;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-subtext mt-2">Active student cohort</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="kpi-card h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="kpi-label">Flagged At Risk</div>
+                    <div class="kpi-value text-danger">{{ kpis.at_risk }}</div>
+                </div>
+                <div class="kpi-icon-wrapper" style="background-color: var(--status-risk-bg); color: var(--status-risk);">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-subtext mt-2">Needs early placement intervention</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="kpi-card h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="kpi-label">Placement Ready</div>
+                    <div class="kpi-value text-success">{{ kpis.ready }}</div>
+                </div>
+                <div class="kpi-icon-wrapper" style="background-color: #ecfdf5; color: #059669;">
+                    <i class="bi bi-award-fill"></i>
+                </div>
+            </div>
+            <div class="kpi-subtext mt-2">&le; 30% gap benchmark</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="kpi-card h-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="kpi-label">Average Cohort Gap</div>
+                    <div class="kpi-value text-slate-900">
+                        {{ kpis.average_gap ~ "%" if kpis.average_gap is not none else "N/A" }}
+                    </div>
+                </div>
+                <div class="kpi-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                    <i class="bi bi-speedometer"></i>
+                </div>
+            </div>
+            <div class="kpi-subtext mt-2">Overall cohort deficit</div>
+        </div>
+    </div>
+</div>
+
+<!-- Assigned Mentees Section -->
+<div class="card-modern">
+    <div class="card-header-modern">
+        <h2 class="card-header-title">
+            <i class="bi bi-people text-primary"></i> Assigned Mentees Overview
+        </h2>
+        {% if mentees %}
+            <span class="badge bg-light text-secondary border small">{{ mentees|length }} Students</span>
+        {% endif %}
+    </div>
+
+    <div class="p-0">
+        {% if not mentees %}
+            <div class="empty-state">
+                <div class="empty-state-icon" style="background-color: #f3e8ff; color: #7e22ce;">
+                    <i class="bi bi-person-slash"></i>
+                </div>
+                <h3 class="empty-state-title">No mentees assigned yet</h3>
+                <p class="empty-state-desc">You currently have no assigned mentees. The Department Administrator will pair students to you via the Admin portal.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-modern align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 28%;">Student</th>
+                            <th scope="col" style="width: 22%;">Target Job Role</th>
+                            <th scope="col" style="width: 25%;">Skill Gap &amp; Readiness</th>
+                            <th scope="col" style="width: 13%;">Status</th>
+                            <th scope="col" style="width: 12%;" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mentee in mentees %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar-pill">
+                                            {{ mentee.student.name[:1]|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-slate-900">{{ mentee.student.name }}</div>
+                                            <small class="text-secondary">{{ mentee.student.email }}</small>
+                                            {% if mentee.profile and mentee.profile.branch and mentee.profile.branch != 'Not specified' %}
+                                                <div class="text-muted" style="font-size: 0.725rem;">
+                                                    {{ mentee.profile.branch }} (Yr {{ mentee.profile.year }})
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if mentee.target_job_role %}
+                                        <div class="fw-medium text-slate-800">{{ mentee.target_job_role.name }}</div>
+                                        <small class="text-muted">{{ mentee.target_job_role.skills|length }} competencies</small>
+                                    {% else %}
+                                        <span class="text-muted fst-italic">Not selected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if mentee.gap_percentage is not none %}
+                                        {% set ready_pct = (100 - mentee.gap_percentage)|round|int %}
+                                        <div class="d-flex justify-content-between small fw-medium mb-1">
+                                            <span>Skill Gap: {{ "%g"|format(mentee.gap_percentage) }}%</span>
+                                            <span class="text-muted">{{ ready_pct }}% ready</span>
+                                        </div>
+                                        <div class="progress-modern">
+                                            <div class="progress-bar {% if mentee.gap_percentage <= 30 %}progress-bar-success{% elif mentee.gap_percentage <= 70 %}progress-bar-warning{% else %}progress-bar-danger{% endif %}" 
+                                                 style="width: {{ ready_pct }}%;"></div>
+                                        </div>
+                                    {% elif mentee.target_job_role %}
+                                        <span class="text-muted small">Undefined (no required skills)</span>
+                                    {% else %}
+                                        <span class="text-muted small">Undefined (no target role)</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if mentee.at_risk %}
+                                        <span class="badge-risk">
+                                            <i class="bi bi-exclamation-triangle-fill"></i> At Risk
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-light text-secondary border px-2 py-1 small rounded-pill">
+                                            Standard
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" href="{{ url_for('mentor.mentee_note', student_id=mentee.student.id) }}">
+                                        <i class="bi bi-journal-text"></i> Mentee Details
+                                        {% if mentee.notes_count > 0 %}
+                                            <span class="badge bg-primary-subtle text-primary rounded-pill ms-1">{{ mentee.notes_count }}</span>
+                                        {% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

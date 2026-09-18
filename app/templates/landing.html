@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Skill-Gap & Employability Readiness Tracker{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="row align-items-center py-5">
+    <div class="col-lg-7 mb-4 mb-lg-0">
+        <span class="feature-pill mb-3">
+            <i class="bi bi-award-fill"></i> College Employability &amp; Placement Engine
+        </span>
+        <h1 class="display-5 fw-bold text-slate-900 lh-tight mb-3">
+            Close the <span style="color: var(--brand-primary);">Visibility Gap</span> in Student Career Readiness
+        </h1>
+        <p class="lead text-secondary mb-4" style="font-size: 1.15rem; max-width: 580px;">
+            A unified institutional platform connecting students, faculty mentors, and placement officers to continuously benchmark skill proficiency against real industry job standards.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg d-inline-flex align-items-center gap-2">
+                <i class="bi bi-box-arrow-in-right"></i> Launch Readiness Portal
+            </a>
+            <a href="#features" class="btn btn-outline-secondary btn-lg d-inline-flex align-items-center gap-2">
+                <i class="bi bi-compass"></i> Explore Capabilities
+            </a>
+        </div>
+    </div>
+    
+    <!-- Hero Card Graphic -->
+    <div class="col-lg-5">
+        <div class="card-modern p-4 border-0 shadow-lg" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="brand-icon-box" style="width: 44px; height: 44px;">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-slate-900">Placement Benchmark</h6>
+                        <small class="text-secondary">Target: Full-Stack Developer</small>
+                    </div>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill small fw-semibold">Active</span>
+            </div>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small fw-semibold mb-1">
+                    <span>Verified Employability Score</span>
+                    <span class="text-primary">75% Ready (25% Gap)</span>
+                </div>
+                <div class="progress-modern">
+                    <div class="progress-bar progress-bar-success" style="width: 75%;"></div>
+                </div>
+            </div>
+            
+            <div class="vstack gap-2 mb-3">
+                <div class="d-flex align-items-center justify-content-between p-2 bg-white rounded border border-slate-100">
+                    <span class="small fw-medium"><i class="bi bi-check-circle-fill text-success me-1"></i> Data Structures &amp; Algorithms</span>
+                    <span class="badge-proficiency badge-proficiency-confident small">Confident</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between p-2 bg-white rounded border border-slate-100">
+                    <span class="small fw-medium"><i class="bi bi-check-circle-fill text-success me-1"></i> Python &amp; Flask APIs</span>
+                    <span class="badge-proficiency badge-proficiency-confident small">Confident</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between p-2 bg-white rounded border border-slate-100">
+                    <span class="small fw-medium"><i class="bi bi-hourglass-split text-warning me-1"></i> SQL Database Optimization</span>
+                    <span class="badge-proficiency badge-proficiency-learning small">Learning</span>
+                </div>
+            </div>
+            
+            <div class="p-2 rounded-3 bg-light text-center small text-secondary">
+                <i class="bi bi-shield-check text-primary me-1"></i> Early Warning System for Faculty Mentors &amp; TPO
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real Metrics Counter -->
+<div class="row g-3 py-4 mb-5 border-top border-bottom">
+    <div class="col-6 col-md-3">
+        <div class="text-center">
+            <div class="display-6 fw-bold text-slate-900 mb-1">{{ stats.student_count }}</div>
+            <div class="small fw-semibold text-uppercase text-secondary">Registered Students</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="text-center">
+            <div class="display-6 fw-bold text-slate-900 mb-1">{{ stats.role_count }}</div>
+            <div class="small fw-semibold text-uppercase text-secondary">Target Job Roles</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="text-center">
+            <div class="display-6 fw-bold text-slate-900 mb-1">{{ stats.skill_count }}</div>
+            <div class="small fw-semibold text-uppercase text-secondary">Industry Skills Tracked</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="text-center">
+            <div class="display-6 fw-bold text-slate-900 mb-1">{{ stats.mentor_count }}</div>
+            <div class="small fw-semibold text-uppercase text-secondary">Faculty Mentors</div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div id="features" class="py-4">
+    <div class="text-center mb-5">
+        <span class="feature-pill mb-2">Stakeholder Architecture</span>
+        <h2 class="h2 fw-bold text-slate-900">Tailored Intelligence for Every Role</h2>
+        <p class="text-secondary max-w-lg mx-auto">Structured accountability replacing informal WhatsApp updates and eleventh-hour placement spreadsheets.</p>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Student -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card-modern h-100 p-4 hover-lift">
+                <div class="kpi-icon-wrapper mb-3" style="background-color: #e0f2fe; color: #0369a1;">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <h5 class="fw-bold text-slate-900 mb-2">Student Portal</h5>
+                <p class="text-secondary small mb-3">
+                    Self-assess against target career checklists, identify high-priority skill deficits, and view verified feedback.
+                </p>
+                <ul class="list-unstyled small text-secondary vstack gap-2 mt-auto">
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Exact gap % metric</li>
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Priority skills breakdown</li>
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Mentor guidance history</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Mentor -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card-modern h-100 p-4 hover-lift">
+                <div class="kpi-icon-wrapper mb-3" style="background-color: #f3e8ff; color: #7e22ce;">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+                <h5 class="fw-bold text-slate-900 mb-2">Faculty Mentors</h5>
+                <p class="text-secondary small mb-3">
+                    Monitor assigned mentees across semesters, record actionable review logs, and flag at-risk candidates early.
+                </p>
+                <ul class="list-unstyled small text-secondary vstack gap-2 mt-auto">
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Mentee cohort tracking</li>
+                    <li><i class="bi bi-check2 text-primary me-1"></i> At-risk alert triggers</li>
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Verified assessment overrides</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- TPO -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card-modern h-100 p-4 hover-lift">
+                <div class="kpi-icon-wrapper mb-3" style="background-color: #ecfdf5; color: #047857;">
+                    <i class="bi bi-building-check"></i>
+                </div>
+                <h5 class="fw-bold text-slate-900 mb-2">Placement Officer (TPO)</h5>
+                <p class="text-secondary small mb-3">
+                    Institutional cockpit with branch-wise median readiness, role requirement curations, and 1-click CSV exports.
+                </p>
+                <ul class="list-unstyled small text-secondary vstack gap-2 mt-auto">
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Early-warning at-risk lists</li>
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Branch &amp; role analytics</li>
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Placement-ready exports</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Admin -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card-modern h-100 p-4 hover-lift">
+                <div class="kpi-icon-wrapper mb-3" style="background-color: #fff1f2; color: #be123c;">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h5 class="fw-bold text-slate-900 mb-2">College Administration</h5>
+                <p class="text-secondary small mb-3">
+                    Department-wide longitudinal trends, skill demand distribution, and bulk mentor-mentee pairing operations.
+                </p>
+                <ul class="list-unstyled small text-secondary vstack gap-2 mt-auto">
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Department-wide trends</li>
+                    <li><i class="bi bi-check2 text-primary me-1"></i> Bulk pairing &amp; CSV tools</li>
+                    <li><i class="bi bi-check2 text-primary me-1"></i> User audit directory</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Banner -->
+<div class="card-modern p-5 text-center mt-5 mb-4 text-white" style="background: linear-gradient(135deg, var(--color-slate-900) 0%, var(--brand-primary) 100%);">
+    <h2 class="h3 fw-bold mb-2">Ready to examine readiness data?</h2>
+    <p class="text-white-50 max-w-md mx-auto mb-4">Sign in to your role dashboard with instant test accounts or institutional credentials.</p>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg fw-semibold px-4 text-primary">
+        Sign In to Portal <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+</div>
+{% endblock %}

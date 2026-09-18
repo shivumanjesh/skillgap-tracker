@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Institutional Readiness Trends{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge-role badge-role-admin">
+                <i class="bi bi-shield-lock-fill"></i> Institutional Administration
+            </span>
+            <span class="text-secondary small">&bull;</span>
+            <span class="text-secondary small">Longitudinal Analytics</span>
+        </div>
+        <h1 class="h3 fw-bold text-slate-900 mb-0">Student Readiness &amp; Skill Trends</h1>
+        <p class="text-secondary small mb-0">Macro analytics on college-wide skill distributions, role demands, and mentoring coverage</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" href="{{ url_for('admin.assign_mentors') }}">
+            <i class="bi bi-person-gear"></i> Mentor Assignments
+        </a>
+        <a class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="{{ url_for('admin.users') }}">
+            <i class="bi bi-people"></i> User Directory
+        </a>
+    </div>
+</div>
+
+<!-- Overview KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-2-4" style="flex: 0 0 auto; width: 20%;">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Total Students</div>
+            <div class="kpi-value text-slate-900">{{ student_overview.total }}</div>
+            <div class="kpi-subtext">Registered candidates</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2-4" style="flex: 0 0 auto; width: 20%;">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">With Target Role</div>
+            <div class="kpi-value text-success">{{ student_overview.with_target_role }}</div>
+            <div class="kpi-subtext">Defined career path</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2-4" style="flex: 0 0 auto; width: 20%;">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Without Target Role</div>
+            <div class="kpi-value text-danger">{{ student_overview.without_target_role }}</div>
+            <div class="kpi-subtext">Needs role selection</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2-4" style="flex: 0 0 auto; width: 20%;">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Faculty Mentors</div>
+            <div class="kpi-value text-purple" style="color: #7e22ce;">{{ student_overview.mentor_count }}</div>
+            <div class="kpi-subtext">Active faculty guides</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl-2-4" style="flex: 0 0 auto; width: 20%;">
+        <div class="kpi-card h-100">
+            <div class="kpi-label">Active Pairings</div>
+            <div class="kpi-value text-primary">{{ student_overview.total_assignments }}</div>
+            <div class="kpi-subtext">Mentor-student pairs</div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Section -->
+{% if role_rows or skill_rows %}
+    <div class="row g-4 mb-4">
+        <!-- Role-wise Gap Chart -->
+        <div class="col-lg-6">
+            <div class="card-modern h-100">
+                <div class="card-header-modern">
+                    <h2 class="card-header-title">
+                        <i class="bi bi-bar-chart-fill text-primary"></i> Average Skill Gap by Career Track
+                    </h2>
+                </div>
+                <div class="p-4" style="min-height: 300px;">
+                    <canvas id="roleGapChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Proficiency Distribution Chart -->
+        <div class="col-lg-6">
+            <div class="card-modern h-100">
+                <div class="card-header-modern">
+                    <h2 class="card-header-title">
+                        <i class="bi bi-stack text-success"></i> Skill Competency Distribution
+                    </h2>
+                </div>
+                <div class="p-4" style="min-height: 300px;">
+                    <canvas id="skillStackedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Role-Wise Data Table -->
+<div class="card-modern mb-4">
+    <div class="card-header-modern">
+        <h2 class="card-header-title">
+            <i class="bi bi-briefcase-fill text-primary"></i> Role-Wise Skill Gap Overview
+        </h2>
+        <span class="badge bg-light text-secondary border small">{{ role_rows|length }} Tracks</span>
+    </div>
+    
+    <div class="p-0">
+        {% if role_rows %}
+            <div class="table-responsive">
+                <table class="table table-modern align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 40%;">Target Role</th>
+                            <th scope="col" style="width: 30%;">Students Enrolled</th>
+                            <th scope="col" style="width: 30%;" class="text-end">Average Skill Gap</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in role_rows %}
+                            <tr>
+                                <td class="fw-semibold text-slate-900">{{ row.name }}</td>
+                                <td>
+                                    <span class="badge bg-light text-slate-700 border px-3 py-1 rounded-pill">
+                                        {{ row.student_count }} Students
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    {% if row.average_gap is not none %}
+                                        <span class="fw-bold {% if row.average_gap <= 30 %}text-success{% elif row.average_gap <= 70 %}text-warning-emphasis{% else %}text-danger{% endif %}">
+                                            {{ "%g"|format(row.average_gap) ~ "%" }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted small">Undefined (no required skills)</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state py-4">
+                <p class="text-secondary mb-0">No target-role data is available yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Skill Proficiency Data Table -->
+<div class="card-modern">
+    <div class="card-header-modern">
+        <h2 class="card-header-title">
+            <i class="bi bi-check2-square text-success"></i> Macro Skill Proficiency Matrix
+        </h2>
+        <span class="badge bg-light text-secondary border small">{{ skill_rows|length }} Tracked Skills</span>
+    </div>
+    
+    <div class="p-0">
+        {% if skill_rows %}
+            <div class="table-responsive">
+                <table class="table table-modern align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 36%;">Skill Name</th>
+                            <th scope="col" style="width: 16%;">Not Started</th>
+                            <th scope="col" style="width: 16%;">Learning</th>
+                            <th scope="col" style="width: 16%;">Comfortable</th>
+                            <th scope="col" style="width: 16%;" class="text-end">Confident</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in skill_rows %}
+                            <tr>
+                                <td class="fw-semibold text-slate-900">{{ row.name }}</td>
+                                <td>
+                                    <span class="badge-proficiency badge-proficiency-not_started py-0 px-2" style="font-size: 0.775rem;">
+                                        {{ row.not_started }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge-proficiency badge-proficiency-learning py-0 px-2" style="font-size: 0.775rem;">
+                                        {{ row.learning }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge-proficiency badge-proficiency-comfortable py-0 px-2" style="font-size: 0.775rem;">
+                                        {{ row.comfortable }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge-proficiency badge-proficiency-confident py-0 px-2" style="font-size: 0.775rem;">
+                                        {{ row.confident }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state py-4">
+                <p class="text-secondary mb-0">No required-skill data is available yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if role_rows %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Role Gap Chart
+    const roleCtx = document.getElementById('roleGapChart');
+    if (roleCtx) {
+        new Chart(roleCtx, {
+            type: 'bar',
+            data: {
+                labels: [{% for row in role_rows %}'{{ row.name }}',{% endfor %}],
+                datasets: [{
+                    label: 'Avg Skill Gap (%)',
+                    data: [{% for row in role_rows %}{{ row.average_gap if row.average_gap is not none else 0 }},{% endfor %}],
+                    backgroundColor: '#4f46e5',
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: 'Average Gap (%)' }
+                    }
+                }
+            }
+        });
+    }
+
+    // Skill Stacked Chart
+    const skillCtx = document.getElementById('skillStackedChart');
+    if (skillCtx && {{ skill_rows|length }} > 0) {
+        new Chart(skillCtx, {
+            type: 'bar',
+            data: {
+                labels: [{% for row in skill_rows[:8] %}'{{ row.name }}',{% endfor %}],
+                datasets: [
+                    {
+                        label: 'Confident',
+                        data: [{% for row in skill_rows[:8] %}{{ row.confident }},{% endfor %}],
+                        backgroundColor: '#059669',
+                    },
+                    {
+                        label: 'Comfortable',
+                        data: [{% for row in skill_rows[:8] %}{{ row.comfortable }},{% endfor %}],
+                        backgroundColor: '#2563eb',
+                    },
+                    {
+                        label: 'Learning',
+                        data: [{% for row in skill_rows[:8] %}{{ row.learning }},{% endfor %}],
+                        backgroundColor: '#d97706',
+                    },
+                    {
+                        label: 'Not Started',
+                        data: [{% for row in skill_rows[:8] %}{{ row.not_started }},{% endfor %}],
+                        backgroundColor: '#94a3b8',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

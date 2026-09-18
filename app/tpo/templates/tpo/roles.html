@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Target Job Roles{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge-role badge-role-tpo">
+                <i class="bi bi-award-fill"></i> Placement Administration
+            </span>
+        </div>
+        <h1 class="h3 fw-bold text-slate-900 mb-0">Career Tracks &amp; Job Roles</h1>
+        <p class="text-secondary small mb-0">Define industry career tracks and configure required skill checklists</p>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="{{ url_for('tpo.dashboard') }}">
+        <i class="bi bi-arrow-left"></i> Readiness Dashboard
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Create Role Form -->
+    <div class="col-lg-5">
+        <div class="card-modern p-4 sticky-top" style="top: 80px;">
+            <h5 class="fw-bold text-slate-900 mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-plus-circle text-primary"></i> Add Career Job Role
+            </h5>
+            
+            <form method="post" action="{{ url_for('tpo.roles') }}">
+                <div class="mb-3">
+                    <label class="form-label" for="name">
+                        Role Title <span class="text-danger">*</span>
+                    </label>
+                    <input class="form-control" id="name" name="name" type="text" placeholder="e.g., Cloud &amp; DevOps Engineer" required autofocus>
+                    <div class="form-text small text-secondary">
+                        Students can select this role as their career target to measure their skill gap.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2" type="submit">
+                    <i class="bi bi-check-lg"></i> Create Job Role
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing Roles List -->
+    <div class="col-lg-7">
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h2 class="card-header-title">
+                    <i class="bi bi-briefcase text-primary"></i> Active Job Roles
+                </h2>
+                <span class="badge bg-light text-secondary border small">{{ roles|length }} Roles Configured</span>
+            </div>
+            
+            <div class="p-0">
+                {% if roles %}
+                    <div class="list-group list-group-flush">
+                        {% for role in roles %}
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3" 
+                               href="{{ url_for('tpo.role_skills', role_id=role.id) }}">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="kpi-icon-wrapper" style="width: 38px; height: 38px; font-size: 1.15rem; background-color: #e0f2fe; color: #0284c7;">
+                                        <i class="bi bi-briefcase"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-slate-900 mb-0">{{ role.name }}</div>
+                                        <small class="text-secondary">Click to manage required skills checklist</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small fw-semibold">
+                                        {{ role.skills|length }} skills
+                                    </span>
+                                    <i class="bi bi-chevron-right text-muted"></i>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state py-5">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-briefcase"></i>
+                        </div>
+                        <h6 class="empty-state-title">No job roles created yet</h6>
+                        <p class="empty-state-desc mb-0">Use the form on the left to define your first campus placement track.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

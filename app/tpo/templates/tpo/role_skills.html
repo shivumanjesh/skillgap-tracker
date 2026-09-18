@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}{{ role.name }} Skills Checklist{% endblock %}
+
+{% block content %}
+<!-- Header Row -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge-role badge-role-tpo">
+                <i class="bi bi-award-fill"></i> Role Competencies
+            </span>
+            <span class="text-secondary small">&bull;</span>
+            <span class="text-secondary small">{{ role.name }}</span>
+        </div>
+        <h1 class="h3 fw-bold text-slate-900 mb-0">{{ role.name }}</h1>
+        <p class="text-secondary small mb-0">Configure the benchmark skills students must master for this role</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="{{ url_for('tpo.roles') }}">
+            <i class="bi bi-arrow-left"></i> All Job Roles
+        </a>
+        <a class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" href="{{ url_for('tpo.dashboard') }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Add Skill Form -->
+    <div class="col-lg-5">
+        <div class="card-modern p-4 sticky-top" style="top: 80px;">
+            <h5 class="fw-bold text-slate-900 mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-plus-circle text-primary"></i> Add Required Skill
+            </h5>
+            
+            <form method="post" action="{{ url_for('tpo.role_skills', role_id=role.id) }}">
+                <div class="mb-3">
+                    <label class="form-label" for="name">
+                        Skill Name <span class="text-danger">*</span>
+                    </label>
+                    <input class="form-control" id="name" name="name" type="text" 
+                           placeholder="e.g., Data Structures &amp; Algorithms" required autofocus>
+                    <div class="form-text small text-secondary">
+                        Students targeting {{ role.name }} will see this in their self-assessment checklist.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2" type="submit">
+                    <i class="bi bi-check-lg"></i> Add Skill to Checklist
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing Skills List -->
+    <div class="col-lg-7">
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h2 class="card-header-title">
+                    <i class="bi bi-list-check text-primary"></i> Required Competencies Checklist
+                </h2>
+                <span class="badge bg-light text-secondary border small">{{ role.skills|length }} Skills</span>
+            </div>
+            
+            <div class="p-0">
+                {% if role.skills %}
+                    <ul class="list-group list-group-flush">
+                        {% for skill in role.skills|sort(attribute="name") %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-circle bg-primary-subtle text-primary p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-check2"></i>
+                                    </div>
+                                    <span class="fw-semibold text-slate-900">{{ skill.name }}</span>
+                                </div>
+                                <form method="post" action="{{ url_for('tpo.delete_skill', role_id=role.id, skill_id=skill.id) }}" 
+                                      onsubmit="return confirm('Are you sure you want to delete this required skill?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm border-0" title="Delete skill">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-state py-5">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-card-checklist"></i>
+                        </div>
+                        <h6 class="empty-state-title">No skills added yet</h6>
+                        <p class="empty-state-desc mb-0">Add skills using the form on the left to complete this job role's checklist.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
