@@ -955,14 +955,23 @@ def render_student_view():
     )
 
     tabs = st.tabs([
-        "📊 Readiness & Radar Analytics",
-        "🎯 SMART Diagnostic & Skills",
-        "🤖 AI Career Copilot",
+        "📊 Overview & Radar",
+        "📅 30-Day Sprint Roadmap",
+        "💡 Tech Interview Flashcards",
+        "📄 STAR Resume Generator",
+        "🎯 SMART Diagnostic & Rubrics",
         "💬 Mentor Guidance Stream",
         "⚙️ Change Career Track",
     ])
 
-    # TAB 1: READINESS & RADAR
+    priority_order = {"not_started": 1, "learning": 2, "comfortable": 3}
+    deficit_skills = [
+        (s.name, effective_level.get(s.id, "not_started"), priority_order.get(effective_level.get(s.id, "not_started"), 9))
+        for s in skills if effective_level.get(s.id, "not_started") != "confident"
+    ]
+    deficit_skills.sort(key=lambda x: x[2])
+
+    # TAB 0: READINESS & RADAR
     with tabs[0]:
         if not target_role:
             st.warning("⚠️ You have not chosen a target career role yet! Head over to the 'Change Career Track' tab to select your path.")
@@ -972,6 +981,76 @@ def render_student_view():
             m2.metric("Readiness Score", f"{readiness_score}%", delta=f"{readiness_score - 50:.1f}% vs Goal")
             m3.metric("Skill Deficit Gap", f"{gap_percentage}%", delta=f"-{gap_percentage}%", delta_color="inverse")
             m4.metric("Total Competencies", len(skills))
+
+            # AI Copilot Quick Launchpad Banner
+            st.markdown(
+                """
+                <div class="ai-box" style="margin-top: 1rem; margin-bottom: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="ai-badge">AI Assistant Suite</span>
+                            <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">AI Placement Career Copilot</h3>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #6b21a8; font-weight: 600;">Autonomous Student Self-Empowerment</span>
+                    </div>
+                    <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
+                        Directly access your <strong>30-Day Sprint Roadmap</strong>, <strong>Tech Interview Flashcards</strong>, and <strong>STAR Resume Generator</strong> via the tabs above or quick previews below:
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            # Quick-Access Cards
+            col_ai1, col_ai2, col_ai3 = st.columns(3)
+            with col_ai1:
+                st.markdown(
+                    """
+                    <div style="background: #ffffff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; border-top: 4px solid #9333ea;">
+                        <div style="font-size: 1.3rem;">📅</div>
+                        <div style="font-size: 1rem; font-weight: 700; color: #581c87; margin: 0.25rem 0;">30-Day Sprint Roadmap</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">4-week sprint plan tailored to your skill deficits.</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                with st.expander("👀 Open Roadmap Quick-View"):
+                    st.markdown(generate_student_roadmap(user_name, target_role.name, deficit_skills))
+
+            with col_ai2:
+                st.markdown(
+                    """
+                    <div style="background: #ffffff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; border-top: 4px solid #a855f7;">
+                        <div style="font-size: 1.3rem;">💡</div>
+                        <div style="font-size: 1rem; font-weight: 700; color: #581c87; margin: 0.25rem 0;">Tech Interview Simulator</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">Role-specific questions with answer criteria.</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                with st.expander("👀 Open Interview Questions Quick-View"):
+                    questions_prev = generate_interview_questions(target_role.name)
+                    for idx, (q, model_answer) in enumerate(questions_prev[:2]):
+                        st.markdown(f"**Q{idx+1}: {q}**")
+                        st.info(f"Model Criteria: {model_answer}")
+
+            with col_ai3:
+                st.markdown(
+                    """
+                    <div style="background: #ffffff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; border-top: 4px solid #c084fc;">
+                        <div style="font-size: 1.3rem;">📄</div>
+                        <div style="font-size: 1rem; font-weight: 700; color: #581c87; margin: 0.25rem 0;">STAR Resume Bullets</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">Copy-paste ready accomplishment statements.</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                with st.expander("👀 Open Resume Bullets Quick-View"):
+                    bullets_prev = generate_resume_bullets(target_role.name, skills, effective_level)
+                    for b in bullets_prev[:2]:
+                        st.markdown(b)
+
+            st.divider()
 
             c1, c2 = st.columns([1, 1.2])
             with c1:
@@ -1007,13 +1086,7 @@ def render_student_view():
 
             st.divider()
             st.subheader("🎯 Urgent Action Items (Priority Deficit Competencies)")
-            priority_order = {"not_started": 1, "learning": 2, "comfortable": 3}
-            priorities = [
-                (s.name, effective_level.get(s.id, "not_started"), priority_order.get(effective_level.get(s.id, "not_started"), 9))
-                for s in skills if effective_level.get(s.id, "not_started") != "confident"
-            ]
-            priorities.sort(key=lambda x: x[2])
-
+            priorities = deficit_skills
             if not priorities:
                 st.success("🎉 Outstanding! You are Confident across all required competencies for your target career role.")
             else:
@@ -1031,8 +1104,70 @@ def render_student_view():
                             unsafe_allow_html=True,
                         )
 
-    # TAB 2: SMART DIAGNOSTIC & SELF-ASSESSMENT
+    # TAB 1: 30-DAY SPRINT ROADMAP
     with tabs[1]:
+        st.markdown(
+            """
+            <div class="ai-box">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="ai-badge">AI Assistant</span>
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">📅 30-Day Placement Acceleration Roadmap</h3>
+                </div>
+                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
+                    Customized week-by-week learning blueprint engineered around your specific competency deficits.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(generate_student_roadmap(user_name, target_role.name if target_role else "Engineering", deficit_skills))
+
+    # TAB 2: TECH INTERVIEW SIMULATOR
+    with tabs[2]:
+        st.markdown(
+            f"""
+            <div class="ai-box">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="ai-badge">AI Assistant</span>
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">💡 Technical Interview Simulator & Flashcards</h3>
+                </div>
+                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
+                    High-probability questions asked by Tier-1 & Tier-2 corporate recruiters for <strong>{target_role.name if target_role else 'Role'}</strong>.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        questions = generate_interview_questions(target_role.name if target_role else "")
+        for idx, (q, model_answer) in enumerate(questions):
+            with st.expander(f"📌 Question #{idx+1}: {q}", expanded=(idx == 0)):
+                st.markdown(f"**Recruiter Evaluation Rubric & Model Answer:**")
+                st.info(model_answer)
+                st.caption("Tip: Practice explaining your answers out loud following the STAR (Situation-Task-Action-Result) format.")
+
+    # TAB 3: STAR RESUME GENERATOR
+    with tabs[3]:
+        st.markdown(
+            f"""
+            <div class="ai-box">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="ai-badge">AI Assistant</span>
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">📄 STAR Resume Impact Statement Generator</h3>
+                </div>
+                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
+                    Accomplishment statements mapped to your verified competencies for your technical resume:
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        bullets = generate_resume_bullets(target_role.name if target_role else "Role", skills, effective_level)
+        for b in bullets:
+            st.markdown(b)
+        st.caption("📋 Copy and paste these bullet points under your Projects / Technical Experience section.")
+
+    # TAB 4: SMART DIAGNOSTIC & SELF-ASSESSMENT
+    with tabs[4]:
         st.subheader("🎯 SMART Autonomous Diagnostic & Empirical Self-Assessment")
         st.caption(
             "Self-evaluate against objective, verifiable behavioral milestones. Checking milestones automatically determines your true competency level."
@@ -1090,63 +1225,8 @@ def render_student_view():
                         st.success("Empirical diagnostic saved! Your placement readiness index and radar polygon have been updated.")
                         st.rerun()
 
-    # TAB 3: AI CAREER COPILOT
-    with tabs[2]:
-        st.markdown(
-            """
-            <div class="ai-box">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span class="ai-badge">AI Assistant</span>
-                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">AI Placement Career Copilot</h3>
-                </div>
-                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
-                    Personalized intelligence tuned to your specific competency deficits, academic year, and target career track.
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        priority_order = {"not_started": 1, "learning": 2, "comfortable": 3}
-        deficit_skills = [
-            (s.name, effective_level.get(s.id, "not_started"), priority_order.get(effective_level.get(s.id, "not_started"), 9))
-            for s in skills if effective_level.get(s.id, "not_started") != "confident"
-        ]
-        deficit_skills.sort(key=lambda x: x[2])
-
-        copilot_tabs = st.tabs([
-            "📅 30-Day Learning Sprint",
-            "💡 Technical Interview Simulator",
-            "📄 Resume Impact Bullets",
-        ])
-
-        # SUB-TAB 1: ROADMAP
-        with copilot_tabs[0]:
-            st.markdown(generate_student_roadmap(user_name, target_role.name if target_role else "Engineering", deficit_skills))
-
-        # SUB-TAB 2: INTERVIEW PREP
-        with copilot_tabs[1]:
-            st.markdown(f"#### 🎙️ High-Probability Technical Interview Questions for {target_role.name if target_role else 'Role'}")
-            st.caption("Common technical and architectural challenges asked by Tier-1 & Tier-2 engineering recruiters:")
-
-            questions = generate_interview_questions(target_role.name if target_role else "")
-            for idx, (q, model_answer) in enumerate(questions):
-                with st.expander(f"Question #{idx+1}: {q}"):
-                    st.markdown(f"**Interviewer Evaluation Criteria:**")
-                    st.info(model_answer)
-                    st.markdown("*(Tip: Practice answering out loud using the STAR method before placement drives).*")
-
-        # SUB-TAB 3: RESUME BULLETS
-        with copilot_tabs[2]:
-            st.markdown(f"#### 📄 Resume-Ready Accomplishment Statements for {user_name}")
-            st.caption("Copy and paste these STAR-aligned bullet points directly into your technical resume:")
-
-            bullets = generate_resume_bullets(target_role.name if target_role else "Role", skills, effective_level)
-            for b in bullets:
-                st.markdown(b)
-
-    # TAB 4: MENTOR GUIDANCE
-    with tabs[3]:
+    # TAB 5: MENTOR GUIDANCE
+    with tabs[5]:
         st.subheader("💬 Faculty Mentor Guidance Stream")
         with flask_app.app_context():
             assignment = MentorAssignment.query.filter_by(student_id=user_id).first()
@@ -1168,8 +1248,8 @@ def render_student_view():
                             st.success(n.note_text)
                         st.divider()
 
-    # TAB 5: CHANGE TRACK
-    with tabs[4]:
+    # TAB 6: CHANGE TRACK
+    with tabs[6]:
         st.subheader("Change or Upgrade Target Career Role")
         with flask_app.app_context():
             all_roles = JobRole.query.order_by(JobRole.name).all()
@@ -1722,6 +1802,22 @@ def render_sidebar():
                 """,
                 unsafe_allow_html=True,
             )
+
+            if role == "student":
+                st.markdown(
+                    """
+                    <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #7e22ce; letter-spacing: 0.05em;">AI Copilot Tools</div>
+                        <div style="margin-top: 0.4rem; font-size: 0.825rem; color: #581c87; line-height: 1.6;">
+                            • 📅 <strong>30-Day Sprint Roadmap</strong><br>
+                            • 💡 <strong>Tech Interview Simulator</strong><br>
+                            • 📄 <strong>STAR Resume Bullets</strong><br>
+                            • 🎯 <strong>SMART Diagnostic</strong>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
             if st.button("🚪 Sign Out", key="sidebar_sign_out", use_container_width=True):
                 logout_user()

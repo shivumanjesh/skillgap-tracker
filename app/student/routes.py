@@ -3,6 +3,12 @@ from datetime import datetime, timezone
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from app.ai_copilot import (
+    generate_interview_questions,
+    generate_resume_bullets,
+    generate_student_roadmap,
+    get_student_roadmap_data,
+)
 from app.auth.routes import role_required
 from app.models import (
     Assessment,
@@ -97,6 +103,17 @@ def dashboard():
         student_id=current_user.id
     ).order_by(MentorNote.created_at.desc()).all()
 
+    # AI Career Copilot Data
+    target_role_name = target_job_role.name if target_job_role else "Software Engineering"
+    deficit_skills_list = [
+        (item["skill"].name, item["level"])
+        for item in priority_skills
+    ]
+    roadmap_md = generate_student_roadmap(current_user.name, target_role_name, deficit_skills_list)
+    roadmap_weeks = get_student_roadmap_data(current_user.name, target_role_name, deficit_skills_list)
+    interview_questions = generate_interview_questions(target_role_name)
+    resume_bullets = generate_resume_bullets(target_role_name, skills, effective_level_by_skill)
+
     return render_template(
         "student/dashboard.html",
         profile=profile,
@@ -108,6 +125,10 @@ def dashboard():
         priority_skills=priority_skills,
         mentor=mentor,
         mentor_notes=mentor_notes,
+        roadmap_md=roadmap_md,
+        roadmap_weeks=roadmap_weeks,
+        interview_questions=interview_questions,
+        resume_bullets=resume_bullets,
     )
 
 
