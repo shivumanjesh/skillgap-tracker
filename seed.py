@@ -126,8 +126,9 @@ JOB_ROLES_DATA = [
 ]
 
 
-def seed_database():
-    app = create_app()
+def seed_database(app=None):
+    if app is None:
+        app = create_app()
 
     with app.app_context():
         db.create_all()
@@ -370,6 +371,8 @@ def seed_database():
         db.session.commit()
         print("Database successfully seeded with realistic academic cohort data!")
 
+
+seed_data = seed_database
 
 if __name__ == "__main__":
     seed_database()

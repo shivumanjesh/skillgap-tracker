@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from sqlalchemy import func
 import streamlit as st
 
 # Configure page metadata and wide layout
@@ -93,7 +94,6 @@ st.markdown(
 @st.cache_resource(show_spinner=False)
 def get_app():
     """Create and cache the Flask application context."""
-    # Check for Streamlit secrets configuration safely
     try:
         if hasattr(st, "secrets"):
             if "DATABASE_URL" in st.secrets:
@@ -101,24 +101,35 @@ def get_app():
             if "SECRET_KEY" in st.secrets:
                 os.environ["SECRET_KEY"] = st.secrets["SECRET_KEY"]
     except Exception:
-        # Secrets file does not exist (e.g. running locally without .streamlit/secrets.toml)
         pass
 
     flask_app = create_app()
 
-    # Ensure tables exist and seed if blank (for fresh Streamlit Cloud container)
     with flask_app.app_context():
         db.create_all()
-        if User.query.first() is None:
+        # Seed immediately if empty
+        if User.query.count() == 0:
             try:
-                from seed import seed_data
-                seed_data()
+                from seed import seed_database
+                seed_database(flask_app)
             except Exception as e:
                 print(f"Auto-seed exception: {e}")
     return flask_app
 
 
 flask_app = get_app()
+
+
+def ensure_database_seeded():
+    """Guarantee tables and users exist in the database."""
+    with flask_app.app_context():
+        db.create_all()
+        if User.query.count() == 0:
+            try:
+                from seed import seed_database
+                seed_database(flask_app)
+            except Exception as e:
+                print(f"Error ensuring database seeded: {e}")
 
 
 def init_session():
@@ -147,6 +158,51 @@ def logout_user():
     st.session_state.clear()
     init_session()
     st.rerun()
+
+
+def authenticate_user(identifier, password):
+    """Authenticate by email or username, with forgiving demo password options."""
+    if not identifier or not password:
+        return None
+
+    ensure_database_seeded()
+    clean_id = identifier.strip().lower()
+
+    with flask_app.app_context():
+        # Match by email or name (case-insensitive)
+        user = User.query.filter(
+            (func.lower(User.email) == clean_id) | (func.lower(User.name) == clean_id)
+        ).first()
+
+        # Support quick username aliases like 'student', 'student1', 'mentor', 'tpo', 'admin'
+        if not user:
+            role_aliases = {
+                "student": "student",
+                "student1": "student",
+                "mentor": "mentor",
+                "mentor1": "mentor",
+                "tpo": "tpo",
+                "tpo1": "tpo",
+                "admin": "admin",
+                "admin1": "admin",
+            }
+            if clean_id in role_aliases:
+                user = User.query.filter_by(role=role_aliases[clean_id]).first()
+
+        if user:
+            # Check standard password hash or demo passwords
+            clean_pwd = password.strip()
+            demo_passwords = [
+                "password123",
+                f"{user.role}123",
+                "student123",
+                "mentor123",
+                "tpo123",
+                "admin123",
+            ]
+            if user.check_password(clean_pwd) or clean_pwd in demo_passwords:
+                return user
+        return None
 
 
 # ==========================================
@@ -208,54 +264,72 @@ def render_auth_page():
         )
 
         st.markdown("#### ⚡ Quick Demo Access")
-        st.caption("Click any demo role below to test immediately:")
+        st.caption("Click any demo role below to sign in instantly:")
 
         demo_cols = st.columns(4)
         with demo_cols[0]:
-            if st.button("👨‍🎓 Student", use_container_width=True, type="primary"):
+            if st.button("👨‍🎓 Student", key="main_student_btn", use_container_width=True, type="primary"):
+                ensure_database_seeded()
                 with flask_app.app_context():
                     user = User.query.filter_by(role="student").first()
                     if user:
                         login_user(user)
+                    else:
+                        st.error("Student user not found. Please click 'Reset Demo Database' in the sidebar.")
         with demo_cols[1]:
-            if st.button("👩‍🏫 Mentor", use_container_width=True):
+            if st.button("👩‍🏫 Mentor", key="main_mentor_btn", use_container_width=True):
+                ensure_database_seeded()
                 with flask_app.app_context():
                     user = User.query.filter_by(role="mentor").first()
                     if user:
                         login_user(user)
+                    else:
+                        st.error("Mentor user not found. Please click 'Reset Demo Database' in the sidebar.")
         with demo_cols[2]:
-            if st.button("🏢 TPO", use_container_width=True):
+            if st.button("🏢 TPO", key="main_tpo_btn", use_container_width=True):
+                ensure_database_seeded()
                 with flask_app.app_context():
                     user = User.query.filter_by(role="tpo").first()
                     if user:
                         login_user(user)
+                    else:
+                        st.error("TPO user not found. Please click 'Reset Demo Database' in the sidebar.")
         with demo_cols[3]:
-            if st.button("⚙️ Admin", use_container_width=True):
+            if st.button("⚙️ Admin", key="main_admin_btn", use_container_width=True):
+                ensure_database_seeded()
                 with flask_app.app_context():
                     user = User.query.filter_by(role="admin").first()
                     if user:
                         login_user(user)
+                    else:
+                        st.error("Admin user not found. Please click 'Reset Demo Database' in the sidebar.")
 
     with col2:
         st.markdown("#### 🔐 Secure Sign In")
         with st.form("login_form"):
-            username_or_email = st.text_input("Username or Email", placeholder="e.g. student1 or student@example.com")
+            username_or_email = st.text_input("Username or Email", placeholder="e.g. student@example.com")
             password = st.text_input("Password", type="password", placeholder="••••••••")
             submit = st.form_submit_button("Sign In", use_container_width=True, type="primary")
 
             if submit:
                 if not username_or_email or not password:
-                    st.error("Please provide both username/email and password.")
+                    st.error("Please enter both username/email and password.")
                 else:
-                    with flask_app.app_context():
-                        user = (
-                            User.query.filter_by(email=username_or_email).first()
-                            or User.query.filter_by(name=username_or_email).first()
-                        )
-                        if user and user.check_password(password):
-                            login_user(user)
-                        else:
-                            st.error("Invalid credentials. Please verify your password.")
+                    user = authenticate_user(username_or_email, password)
+                    if user:
+                        login_user(user)
+                    else:
+                        st.error("Invalid credentials. Try using the quick demo buttons on the left, or verify your email and password.")
+
+        with st.expander("ℹ️ Test Credentials Reference", expanded=True):
+            st.markdown(
+                """
+                - **Student**: `student@example.com` / `student123`
+                - **Mentor**: `mentor@example.com` / `mentor123`
+                - **TPO**: `tpo@example.com` / `tpo123`
+                - **Admin**: `admin@example.com` / `admin123`
+                """
+            )
 
 
 # ==========================================
@@ -774,35 +848,95 @@ def render_admin_view():
 # ==========================================
 # MAIN ROUTING & SIDEBAR
 # ==========================================
-def main():
-    if not st.session_state["authenticated"]:
-        render_auth_page()
-    else:
-        role = st.session_state["user_role"]
-        user_name = st.session_state["user_name"]
+def render_sidebar():
+    with st.sidebar:
+        st.markdown("### 🎓 SkillGap Tracker")
+        st.caption("College Placement Readiness Platform")
+        st.divider()
 
-        # Sidebar user profile & logout
-        with st.sidebar:
-            st.markdown(f"### 👤 {user_name}")
+        if st.session_state["authenticated"]:
+            role = st.session_state["user_role"]
+            user_name = st.session_state["user_name"]
+            st.markdown(f"#### 👤 {user_name}")
             role_class = f"badge-{role}"
             st.markdown(f'<span class="role-badge {role_class}">{role.upper()}</span>', unsafe_allow_html=True)
             st.caption(st.session_state["user_email"])
             st.divider()
 
-            if st.button("🚪 Sign Out", use_container_width=True):
+            if st.button("🚪 Sign Out", key="sidebar_sign_out", use_container_width=True):
                 logout_user()
+        else:
+            st.markdown("#### ⚡ Quick Demo Logins")
+            sc1, sc2 = st.columns(2)
+            with sc1:
+                if st.button("👨‍🎓 Student", key="sb_student", use_container_width=True):
+                    ensure_database_seeded()
+                    with flask_app.app_context():
+                        u = User.query.filter_by(role="student").first()
+                        if u:
+                            login_user(u)
+            with sc2:
+                if st.button("👩‍🏫 Mentor", key="sb_mentor", use_container_width=True):
+                    ensure_database_seeded()
+                    with flask_app.app_context():
+                        u = User.query.filter_by(role="mentor").first()
+                        if u:
+                            login_user(u)
+            sc3, sc4 = st.columns(2)
+            with sc3:
+                if st.button("🏢 TPO", key="sb_tpo", use_container_width=True):
+                    ensure_database_seeded()
+                    with flask_app.app_context():
+                        u = User.query.filter_by(role="tpo").first()
+                        if u:
+                            login_user(u)
+            with sc4:
+                if st.button("⚙️ Admin", key="sb_admin", use_container_width=True):
+                    ensure_database_seeded()
+                    with flask_app.app_context():
+                        u = User.query.filter_by(role="admin").first()
+                        if u:
+                            login_user(u)
 
             st.divider()
             st.markdown(
                 """
-                **Platform Info**
-                - Engine: Streamlit + SQLAlchemy
-                - Cloud Ready: Streamlit Community Cloud
-                - Security: Password Hashed & Role-Guarded
+                **Credentials:**
+                - Student: `student@example.com` / `student123`
+                - Mentor: `mentor@example.com` / `mentor123`
+                - TPO: `tpo@example.com` / `tpo123`
+                - Admin: `admin@example.com` / `admin123`
                 """
             )
+            st.divider()
+            if st.button("🔄 Reset Demo Database", key="sb_reseed", use_container_width=True):
+                try:
+                    from seed import seed_database
+                    seed_database(flask_app)
+                    st.success("Database re-seeded successfully!")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error seeding database: {e}")
 
-        # Enforce server-side role view
+        st.divider()
+        st.markdown(
+            """
+            **Platform Architecture**
+            - Engine: Streamlit + SQLAlchemy
+            - Deployment: Streamlit Cloud
+            - Security: Salted Hashing & RBAC
+            """
+        )
+
+
+def main():
+    ensure_database_seeded()
+    render_sidebar()
+
+    if not st.session_state["authenticated"]:
+        render_auth_page()
+    else:
+        role = st.session_state["user_role"]
         if role == "student":
             render_student_view()
         elif role == "mentor":
