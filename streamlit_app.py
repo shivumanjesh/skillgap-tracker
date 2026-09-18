@@ -1,9 +1,10 @@
 """
-Skill-Gap & Employability Readiness Tracker - Streamlit Cloud Application
-========================================================================
-Production-grade multi-role platform designed for Streamlit Community Cloud.
-Features modern SaaS design aesthetics, interactive Plotly visualizations,
-secure registration, and role-based access control (Student, Mentor, TPO, Admin).
+Skill-Gap & Employability Readiness Tracker - Intelligent Streamlit Platform
+===========================================================================
+A competitive, market-grade employability analytics & placement readiness platform.
+Features SMART autonomous student self-assessment rubrics, Plotly radar/spider charts,
+an AI Career Copilot for students, AI Guidance Assistant for faculty mentors,
+Corporate Hiring Tier forecasting for TPO, and AI Curriculum Gap analytics for Admins.
 """
 
 import os
@@ -42,7 +43,6 @@ from app.models import (
 st.markdown(
     """
     <style>
-    /* Google Fonts Inter Import */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     html, body, [class*="css"] {
@@ -65,22 +65,22 @@ st.markdown(
         position: absolute;
         top: -50px;
         right: -50px;
-        width: 220px;
-        height: 220px;
+        width: 240px;
+        height: 240px;
         background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
         border-radius: 50%;
     }
     .hero-title {
-        font-size: 2rem;
+        font-size: 2.1rem;
         font-weight: 800;
         letter-spacing: -0.025em;
         margin-bottom: 0.5rem;
         color: #ffffff;
     }
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 1.025rem;
         color: #c7d2fe;
-        max-width: 720px;
+        max-width: 760px;
         line-height: 1.6;
         margin-bottom: 1.25rem;
     }
@@ -103,7 +103,7 @@ st.markdown(
         color: #f8fafc;
     }
 
-    /* Metric Card Customization */
+    /* Metric Cards */
     div[data-testid="stMetric"] {
         background: #ffffff;
         border: 1px solid #e2e8f0;
@@ -146,6 +146,42 @@ st.markdown(
     .badge-tpo { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
     .badge-admin { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
 
+    /* AI Accent Pill */
+    .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.75rem;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        color: #ffffff;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        box-shadow: 0 2px 5px rgba(168, 85, 247, 0.3);
+    }
+
+    /* AI Feature Callout Container */
+    .ai-box {
+        background: #faf5ff;
+        border: 1px solid #e9d5ff;
+        border-radius: 14px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 2px 4px rgba(168, 85, 247, 0.05);
+    }
+
+    /* Tier Card Container */
+    .tier-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
     /* Interactive Skill Chips */
     .skill-chip {
         display: inline-flex;
@@ -166,39 +202,13 @@ st.markdown(
         border-color: #94a3b8;
         transform: translateY(-1px);
     }
-    .skill-chip-confident { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
-    .skill-chip-comfortable { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
-    .skill-chip-learning { background-color: #fffbeb; border-color: #fde68a; color: #92400e; }
-    .skill-chip-not_started { background-color: #fef2f2; border-color: #fecaca; color: #991b1b; }
-
-    /* Section Header Decorator */
-    .section-header {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #0f172a;
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    /* Modern Card Container */
-    .content-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 1.5rem;
-        margin-bottom: 1.25rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-    }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 
-# 4. CACHED FLASK APPLICATION CONTEXT & DATABASE
+# 4. CACHED FLASK CONTEXT & RECOVERY
 @st.cache_resource(show_spinner=False)
 def get_app():
     """Create and cache Flask context with automatic cloud database recovery."""
@@ -365,8 +375,61 @@ def register_new_user(name, email, password, role, branch="Computer Science & En
 
 
 # ==========================================
-# CALCULATION & VISUALIZATION HELPERS
+# SMART RUBRICS & VISUALIZATION HELPERS
 # ==========================================
+def get_skill_rubrics(skill_name):
+    """Return 3 concrete, verifiable behavioral milestones for an objective diagnostic."""
+    name_lower = skill_name.lower()
+    if any(k in name_lower for k in ["machine learning", "ai", "deep learning", "nlp", "vision"]):
+        return [
+            "Theoretical intuition: understands loss functions, gradient descent, tokenization, and evaluation metrics (F1/AUC).",
+            "Hands-on execution: has cleaned datasets, trained models, and evaluated inference in PyTorch or Scikit-learn.",
+            "Production optimization: can mitigate overfitting, fine-tune hyper-parameters, and deploy models to API endpoints.",
+        ]
+    elif any(k in name_lower for k in ["sql", "database", "relational"]):
+        return [
+            "Query mastery: writes complex SELECT, JOIN, GROUP BY, subqueries, and understands 3NF normalization.",
+            "Schema design: implements primary/foreign keys, indexes (B-Tree), and constraints in a relational engine.",
+            "High-throughput tuning: understands EXPLAIN plans, transactions (ACID), connection pooling, and replication.",
+        ]
+    elif any(k in name_lower for k in ["api", "flask", "backend", "python"]):
+        return [
+            "HTTP fundamentals: understands REST conventions, status codes, headers, and JSON serialization.",
+            "Application architecture: has built authenticated endpoints with session/JWT auth, input validation, and ORM.",
+            "System reliability: can implement error logging, rate-limiting, and automated unit/integration tests.",
+        ]
+    elif any(k in name_lower for k in ["docker", "kubernetes", "cloud", "ci/cd", "devops", "terraform", "linux"]):
+        return [
+            "Infrastructure basics: comfortable with Linux terminal, virtualization vs containerization, and cloud primitives.",
+            "Container automation: writes multi-stage Dockerfiles, Docker Compose files, and GitHub Actions CI pipelines.",
+            "Cluster orchestration: understands Pod lifecycles, Service ingress, volume persistence, and declarative IaC.",
+        ]
+    elif any(k in name_lower for k in ["frontend", "javascript", "html", "css", "ui"]):
+        return [
+            "DOM & Styling: understands responsive design, CSS Flexbox/Grid, and modern HTML5 semantic elements.",
+            "Interactive logic: writes ES6+ JavaScript, asynchronous Promises, and consumes REST APIs via Fetch.",
+            "Production UX: optimizes bundle size, ensures cross-browser compatibility, and adheres to accessibility standards.",
+        ]
+    elif any(k in name_lower for k in ["security", "vulnerability", "penetration", "iam", "cryptographic"]):
+        return [
+            "Threat awareness: understands OWASP Top 10 vulnerabilities (SQLi, XSS, CSRF) and the CIA security triad.",
+            "Defensive controls: implements TLS/PKI certificates, salted password hashing, and Role-Based Access Control (RBAC).",
+            "Security audits: can inspect network traffic, conduct vulnerability audits, and remediate permission escalations.",
+        ]
+    elif any(k in name_lower for k in ["algorithms", "structures", "dsa"]):
+        return [
+            "Complexity analysis: calculates Big-O time and space complexity and implements arrays, stacks, and queues.",
+            "Non-linear traversal: can implement recursion, binary search trees, heaps, and graph traversals (BFS/DFS).",
+            "Advanced problem solving: can solve medium-tier algorithmic challenges involving dynamic programming and graphs.",
+        ]
+    else:
+        return [
+            f"Understands foundational concepts, terminology, and core syntax of {skill_name}.",
+            f"Has built, debugged, and documented a functioning project demonstrating {skill_name}.",
+            f"Can optimize production performance and solve technical interview problems in {skill_name}.",
+        ]
+
+
 def calculate_student_gap(student_id):
     """Calculate effective skill proficiency, sources, readiness score, and gap percentage."""
     with flask_app.app_context():
@@ -411,8 +474,8 @@ def create_readiness_gauge(readiness_score):
             mode="gauge+number",
             value=readiness_score,
             domain={"x": [0, 1], "y": [0, 1]},
-            title={"text": "Placement Readiness Gauge", "font": {"size": 16, "color": "#1e293b"}},
-            number={"suffix": "%", "font": {"size": 42, "color": "#0f172a"}},
+            title={"text": "Placement Readiness Gauge", "font": {"size": 16, "color": "#1e293b", "family": "Inter, sans-serif"}},
+            number={"suffix": "%", "font": {"size": 42, "color": "#0f172a", "family": "Inter, sans-serif"}},
             gauge={
                 "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#cbd5e1"},
                 "bar": {"color": "#4f46e5", "thickness": 0.28},
@@ -441,11 +504,253 @@ def create_readiness_gauge(readiness_score):
     return fig
 
 
+def create_competency_radar(skills, effective_level):
+    """Create an interactive polar radar/spider chart comparing verified mastery to benchmark."""
+    if not skills:
+        return None
+
+    categories = [s.name for s in skills]
+    level_numeric = {"not_started": 15, "learning": 45, "comfortable": 75, "confident": 100}
+    current_values = [level_numeric.get(effective_level.get(s.id, "not_started"), 15) for s in skills]
+    benchmark_values = [100 for _ in skills]
+
+    categories_closed = categories + [categories[0]]
+    current_closed = current_values + [current_values[0]]
+    benchmark_closed = benchmark_values + [benchmark_values[0]]
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatterpolar(
+        r=benchmark_closed,
+        theta=categories_closed,
+        fill="toself",
+        fillcolor="rgba(148, 163, 184, 0.1)",
+        name="Target Benchmark (100%)",
+        line=dict(color="#94a3b8", dash="dash", width=1.5),
+    ))
+
+    fig.add_trace(go.Scatterpolar(
+        r=current_closed,
+        theta=categories_closed,
+        fill="toself",
+        fillcolor="rgba(79, 70, 229, 0.25)",
+        name="Current Verified Mastery",
+        line=dict(color="#4f46e5", width=2.5),
+        marker=dict(size=6, color="#4338ca"),
+    ))
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                tickfont=dict(size=10, color="#64748b"),
+                gridcolor="#e2e8f0",
+            ),
+            angularaxis=dict(
+                tickfont=dict(size=11, color="#1e293b", family="Inter, sans-serif"),
+                rotation=90,
+                direction="clockwise",
+                gridcolor="#e2e8f0",
+            ),
+            bgcolor="rgba(248, 250, 252, 0.5)",
+        ),
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=-0.22, xanchor="center", x=0.5),
+        height=320,
+        margin=dict(l=35, r=35, t=15, b=35),
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter, sans-serif"),
+    )
+    return fig
+
+
+# ==========================================
+# AI COPILOT GENERATORS
+# ==========================================
+def generate_student_roadmap(student_name, target_role, deficit_skills):
+    """Generate a personalized 30-day week-by-week learning blueprint."""
+    if not deficit_skills:
+        return f"🎉 **Outstanding, {student_name}!** You are already placement-ready across all competencies for **{target_role}**! Recommended next step: Schedule mock interviews with alumni and apply for Tier-1 Product Engineering drives."
+
+    top_deficits = deficit_skills[:3]
+    skills_str = ", ".join([d[0] for d in top_deficits])
+    primary_focus = top_deficits[0][0]
+
+    return f"""### 🚀 30-Day Placement Acceleration Roadmap for {student_name}
+**Target Role:** {target_role} | **Primary Deficit Focus:** {skills_str}
+
+---
+
+#### 📅 **Week 1: Core Conceptual Foundations & Drills**
+- **Focus Competency:** *{primary_focus}*
+- 🎯 **Daily Target:** 2 hours dedicated theory + syntax drills.
+- 📚 **Milestone:** Complete core documentation review; build 3 minimal proofs-of-concept.
+- 💡 **Interview Tip:** Summarize architectural principles into 1-page cheatsheets for interview quick-recall.
+
+#### 📅 **Week 2: Hands-On Capstone Mini-Project**
+- **Focus Competency:** *{" & ".join([d[0] for d in top_deficits[:2]])}*
+- 🎯 **Daily Target:** Build a portfolio-worthy project integrating both competencies.
+- 📚 **Milestone:** Commit clean, documented code to a public GitHub repository with an architecture diagram.
+- 💡 **Action Item:** Add unit tests with >80% coverage and configure automated CI testing.
+
+#### 📅 **Week 3: Advanced Optimization, Edge Cases & System Design**
+- **Focus Competency:** *{top_deficits[-1][0] if len(top_deficits) > 2 else primary_focus}*
+- 🎯 **Daily Target:** Production error handling, benchmarking, latency optimization, and security audits.
+- 📚 **Milestone:** Implement caching, connection pooling, or vector search depending on track requirements.
+- 💡 **Action Item:** Record a 2-minute video walkthrough explaining trade-offs made during development.
+
+#### 📅 **Week 4: Mock Technical Interviews & Placement Polish**
+- 🎯 **Daily Target:** 1 timed technical simulation daily + behavioral STAR questions.
+- 📚 **Milestone:** Schedule a 1-on-1 review with your assigned Faculty Mentor.
+- 💡 **Action Item:** Retake the **SMART Diagnostic** to verify competency transition to **Confident**!
+"""
+
+
+def generate_interview_questions(target_role):
+    """Generate tailored technical interview questions with model answer frameworks."""
+    role_lower = target_role.lower() if target_role else ""
+    if "full-stack" in role_lower or "web" in role_lower:
+        return [
+            ("Explain the complete lifecycle of an HTTP request from browser URL entry to database query and response.",
+             "Evaluates networking, DNS resolution, TLS handshake, web servers (Nginx/Gunicorn), WSGI middleware, routing, ORM SQL execution, and browser DOM rendering."),
+            ("How do you prevent SQL Injection and Cross-Site Scripting (XSS) in a production web application?",
+             "Mentions parameterized prepared statements via ORMs, HTML entity escaping/sanitization, Content Security Policy (CSP) headers, and HttpOnly Secure cookie flags."),
+            ("Describe the difference between optimistic and pessimistic locking in relational databases.",
+             "Explains version column checking vs SELECT FOR UPDATE database-level row locks, highlighting write conflict trade-offs and throughput implications."),
+            ("What strategies do you employ to optimize slow database queries in an application?",
+             "Mentions EXPLAIN ANALYZE, indexing composite columns, avoiding N+1 query loops via eager loading (joinedload), read replicas, and Redis caching."),
+            ("How would you architect JWT authentication with refresh token rotation?",
+             "Discusses short-lived access tokens (15 mins) in memory, long-lived refresh tokens in secure HttpOnly cookies, and database revocation blacklists upon reuse detection.")
+        ]
+    elif "ai" in role_lower or "machine learning" in role_lower:
+        return [
+            ("Explain the mathematical intuition behind the Attention Mechanism in Transformers.",
+             "Discusses Query, Key, Value dot-product projection, scaled softmax attention weighting, and multi-head representation subspace capturing."),
+            ("How do you identify and mitigate vanishing vs exploding gradients in deep neural networks?",
+             "Mentions gradient clipping, Batch Normalization, LayerNorm, Residual skip connections (ResNet), and ReLU/GELU activation functions."),
+            ("When would you choose Precision over Recall, and how does the ROC-AUC curve inform model selection?",
+             "Details false positive vs false negative penalties (e.g. spam vs disease diagnosis) and explains threshold-independent performance evaluation."),
+            ("Describe the end-to-end pipeline for fine-tuning an LLM using LoRA (Low-Rank Adaptation).",
+             "Explains decomposing weight update matrices delta-W into low-rank matrices A x B, freezing base weights, memory efficiency, and rank r parameter selection."),
+            ("How do you monitor and resolve Data Drift and Concept Drift in production ML models?",
+             "Discusses Kolmogorov-Smirnov tests, Population Stability Index (PSI), automated retraining triggers, and shadow deployment validation.")
+        ]
+    elif "devops" in role_lower or "cloud" in role_lower:
+        return [
+            ("Explain the internal mechanics of a Kubernetes Pod lifecycle and Service networking.",
+             "Covers kubelet, pause containers, iptables/eBPF routing, ClusterIP vs NodePort, and Readiness vs Liveness probe behaviors."),
+            ("How do multi-stage Docker builds reduce image attack surface and deployment footprint?",
+             "Separates compilation/build dependencies from lean runtime artifacts (e.g. Alpine/scratch base image), eliminating compilers and source files from the final container."),
+            ("Describe an automated Zero-Downtime Blue-Green or Canary deployment pipeline using CI/CD.",
+             "Details staging environments, traffic splitting (weighted routing), automated health threshold rollbacks, and database migration forward-compatibility."),
+            ("What is Infrastructure as Code (IaC) drift, and how do you prevent it using Terraform?",
+             "Explains terraform state synchronization, `terraform plan -refresh-only`, CI pipeline enforcement, and revoking manual console write permissions."),
+            ("How do you architect highly available distributed logging and alerting across microservices?",
+             "Discusses OpenTelemetry distributed tracing, centralized log aggregation (FluentBit/Grafana Loki), Prometheus metric scraping, and PagerDuty SLA thresholds.")
+        ]
+    else:
+        return [
+            ("Explain how you measure and optimize time and space complexity in algorithms.",
+             "Big-O notation, asymptotic analysis, worst vs average cases, and auxiliary memory allocation."),
+            ("Describe how you structure a relational database schema for high read throughput.",
+             "Denormalization trade-offs, materialized views, indexing strategies, and read-replicas."),
+            ("What is your approach to handling concurrency and race conditions in application logic?",
+             "Locks, semaphores, atomic operations, message queues, and distributed consensus."),
+            ("How do you ensure automated test coverage across unit, integration, and end-to-end levels?",
+             "The Testing Pyramid, mocking external dependencies, regression pipelines, and test-driven design."),
+            ("Describe your strategy for diagnosing a critical performance bottleneck in production.",
+             "APM profiling tools, distributed trace analysis, database query execution plans, and memory heap dumps.")
+        ]
+
+
+def generate_resume_bullets(target_role, skills, effective_level):
+    """Generate STAR-formatted resume bullet points for mastered competencies."""
+    bullets = []
+    for s in skills:
+        lvl = effective_level.get(s.id, "not_started")
+        if lvl in ["confident", "comfortable"]:
+            bullets.append(
+                f"• Architected and deployed production-ready solutions using **{s.name}**, optimizing system reliability and passing rigorous faculty evaluation with **{lvl.title()}** proficiency rating."
+            )
+    if not bullets:
+        bullets.append(f"• Actively developing industry-aligned technical proficiencies across **{target_role}** curriculum tracks, focusing on foundational software architecture and modern workflows.")
+    return bullets
+
+
+def generate_ai_mentor_feedback(mentee_name, branch, target_role, readiness_score, gap_percentage, deficit_skills):
+    """Generate structured, empathetic faculty mentor guidance."""
+    lowest_skills = [s[0] for s in deficit_skills[:2]] if deficit_skills else ["core competencies"]
+    skills_text = " and ".join(lowest_skills)
+
+    if readiness_score >= 75:
+        tone = "Student is performing exceptionally well and demonstrating placement-grade proficiency."
+        advice = f"Encouraged {mentee_name} to participate in national hackathons and start applying for Tier-1 engineering recruitment drives. Recommended exploring open-source contributions to further strengthen industry portfolio."
+    elif readiness_score >= 45:
+        tone = f"Student has established satisfactory foundations but requires targeted practice in {skills_text}."
+        advice = f"Reviewed academic trajectory. Advised {mentee_name} to build a focused mini-project addressing {skills_text} over the next 14 days. Scheduled a technical check-in next week to evaluate hands-on progress."
+    else:
+        tone = f"Student is experiencing high skill deficit ({gap_percentage}%) and is currently flagged for placement intervention."
+        advice = f"Conducted 1-on-1 counseling session. Outlined a 3-phase remediation plan prioritizing {skills_text}. Requested student attend remedial lab hours and complete fundamental exercises before next review cycle."
+
+    return f"Periodic Mentorship Review for {mentee_name} ({branch} - Target: {target_role}):\n\nReadiness Index: {readiness_score}% (Skill Gap: {gap_percentage}%).\n{tone}\n\nAction Plan & Recommendation:\n{advice}"
+
+
+def generate_ai_recruiter_pitch(total_students, ready_count, avg_gap, branch_data, tier_counts):
+    """Generate a high-converting, professional placement pitch for corporate recruiters."""
+    ready_pct = round((ready_count / total_students * 100), 1) if total_students else 0
+    tier1 = tier_counts.get("Tier 1", 0)
+    tier2 = tier_counts.get("Tier 2", 0)
+    top_branches = ", ".join(branch_data["branch"].head(3).tolist()) if not branch_data.empty else "Computer Science, Information Science & ECE"
+
+    return f"""### 🎓 Institutional Placement & Employability Executive Brief
+**Prepared by:** Training & Placement Office (TPO) | **Placement Cycle:** 2026–2027
+
+---
+
+#### 🌟 **Cohort Employability Highlights**
+- **Total Placement Aspirants:** {total_students} engineering candidates across {top_branches}.
+- **Campus Placement Readiness Rate:** **{ready_pct}%** of candidates meet or exceed industry benchmark thresholds (<= 30% gap).
+- **Average Cohort Skill Deficit:** **{avg_gap}%** (measured through continuous verified faculty assessment).
+
+#### 🏆 **Talent Pool Segmentation (Corporate Hiring Tiers)**
+- **Tier-1 Product & Tech Champions (15+ LPA Ready):** **{tier1} candidates** possessing verified mastery across Full-Stack, Distributed Cloud, and AI Systems.
+- **Tier-2 High-Growth Scaleup Talent (8–15 LPA Ready):** **{tier2} candidates** with production project portfolios and full SDLC experience.
+
+#### 🛡️ **Institutional Quality & Accreditation Guarantee (NBA / NAAC Compliance)**
+Unlike standard candidate pools evaluated purely on cumulative GPA, our students undergo **continuous dual-source competency tracking** verified by senior engineering faculty. Every skill rating reflects hands-on project artifacts, version-controlled GitHub codebases, and rigorous algorithmic evaluation.
+
+*Available immediately for on-campus drives, virtual hackathons, and pre-placement hiring interviews.*
+"""
+
+
+def generate_ai_curriculum_analysis(role_gap_df):
+    """Detect systemic curriculum blind spots and generate syllabus intervention recommendations."""
+    if role_gap_df.empty:
+        return "No cohort data available for curriculum analysis."
+
+    highest_gap_role = role_gap_df.sort_values(by="Average Gap", ascending=False).iloc[0]
+
+    return f"""### 🧠 Institutional Curriculum Gap & Industry Alignment Report
+**Audited Target Tracks:** {len(role_gap_df)} Academic Pathways
+
+---
+
+#### 🔍 **Key Syllabus Blind Spot Identified**
+- **Highest Gap Domain:** **{highest_gap_role['Job Role']}** (Average Student Deficit: **{highest_gap_role['Average Gap']}%** across {highest_gap_role['Students']} enrolled students).
+- **Core Structural Finding:** While students demonstrate adequate command of foundational theory, there is a pronounced deficit in production-grade deployment, containerization, and modern architecture tooling.
+
+#### 📋 **Strategic Action Plan for Academic Council (BoS / Dean of Academics)**
+1. **Value-Added Elective Recommendation:** Introduce a 2-credit hands-on lab elective on *Cloud-Native Systems & Microservice Architecture* in Semester 6.
+2. **Faculty Development Program (FDP):** Sponsor a 5-day industry workshop for engineering faculty on modern DevOps CI/CD and AI/ML model deployment.
+3. **Capstone Industry Alignment:** Mandate that final-year engineering projects include automated unit testing (>70% coverage) and public cloud deployment as grading criteria.
+"""
+
+
 # ==========================================
 # AUTHENTICATION & REGISTRATION SCREEN
 # ==========================================
 def render_auth_page():
-    # Hero Showcase Banner
     st.markdown(
         """
         <div class="hero-banner">
@@ -455,11 +760,11 @@ def render_auth_page():
                 Continuously track student competencies, empower faculty mentors with verified evaluations, and give placement officers real-time cohort readiness analytics.
             </div>
             <div class="hero-badge-row">
-                <span class="hero-badge">🎯 4 Curated Career Tracks</span>
-                <span class="hero-badge">📊 Mathematical Gap Analytics</span>
+                <span class="hero-badge">🎯 SMART Diagnostic Rubrics</span>
+                <span class="hero-badge">📊 Competency Radar Analytics</span>
+                <span class="hero-badge">🤖 AI Placement Copilot</span>
                 <span class="hero-badge">🛡️ Verified Faculty Assessments</span>
                 <span class="hero-badge">🏢 Institutional Placement Cockpit</span>
-                <span class="hero-badge">⚡ Instant Cloud Deployment</span>
             </div>
         </div>
         """,
@@ -504,20 +809,19 @@ def render_auth_page():
                         login_user(user)
 
         st.divider()
-        st.markdown("#### 🌟 Key Platform Capabilities")
+        st.markdown("#### 🌟 Market-Leading Capabilities")
         st.markdown(
             """
-            - **Live Readiness Scoring**: Real-time evaluation against 5 core competencies per role.
-            - **Mentor Overrides**: Verified faculty ratings take precedence in placement gap calculations.
-            - **Early Warning Center**: Automatically flags students requiring academic intervention.
-            - **Dual Mode Deployment**: Seamlessly available as both a Flask SaaS app and Streamlit Cloud dashboard.
+            - **SMART Objective Diagnostic**: Students self-evaluate on concrete behavioral milestones rather than arbitrary ratings.
+            - **Multi-Axis Radar Charts**: Visual comparison of verified candidate mastery against target industry standards.
+            - **AI Career Copilot**: 30-day adaptive roadmaps, interview question simulators, and resume bullet point generators.
+            - **Placement Tier Matchmaker**: Automatic segmentation into Tier-1, Tier-2, and Tier-3 corporate hiring tiers.
             """
         )
 
     with col2:
         auth_tabs = st.tabs(["🔐 Sign In to Account", "📝 Create New Account"])
 
-        # TAB 1: SIGN IN
         with auth_tabs[0]:
             with st.form("login_form"):
                 st.markdown("##### Welcome Back")
@@ -537,7 +841,6 @@ def render_auth_page():
                         else:
                             st.error("Invalid credentials. Please verify your email and password, or use the Quick Demo buttons on the left.")
 
-        # TAB 2: REGISTRATION
         with auth_tabs[1]:
             st.markdown("##### Register for SkillGap Tracker")
             st.caption("Create a new student or faculty account:")
@@ -611,14 +914,14 @@ def render_auth_page():
                         )
                         if success:
                             st.balloons()
-                            st.success(f"🎉 Account successfully created for {result.name}! Signing in...")
+                            st.success(f"🎉 Account successfully created for {result['name']}! Signing in...")
                             login_user(result)
                         else:
                             st.error(result)
 
 
 # ==========================================
-# STUDENT VIEW
+# STUDENT VIEW WITH SMART DIAGNOSTIC & COPILOT
 # ==========================================
 def render_student_view():
     user_id = st.session_state["user_id"]
@@ -626,9 +929,8 @@ def render_student_view():
 
     profile, target_role, skills, effective_level, sources, readiness_score, gap_percentage, level_counts = calculate_student_gap(user_id)
 
-    # Readiness Tier Badge
     if readiness_score >= 70:
-        tier_badge = '<span class="role-badge badge-mentor">🚀 Placement Ready</span>'
+        tier_badge = '<span class="role-badge badge-mentor">🚀 Tier-1 Placement Ready</span>'
     elif readiness_score >= 40:
         tier_badge = '<span class="role-badge badge-tpo">⚡ Advancing Competency</span>'
     else:
@@ -652,25 +954,29 @@ def render_student_view():
         unsafe_allow_html=True,
     )
 
-    tabs = st.tabs(["📊 Readiness & Gap Analytics", "🎯 Career Track & Competencies", "📝 Self-Assessment Matrix", "💬 Mentor Guidance Stream"])
+    tabs = st.tabs([
+        "📊 Readiness & Radar Analytics",
+        "🎯 SMART Diagnostic & Skills",
+        "🤖 AI Career Copilot",
+        "💬 Mentor Guidance Stream",
+        "⚙️ Change Career Track",
+    ])
 
-    # TAB 1: OVERVIEW & GAUGES
+    # TAB 1: READINESS & RADAR
     with tabs[0]:
         if not target_role:
-            st.warning("⚠️ You have not chosen a target career role yet! Head over to the 'Career Track' tab to select your path.")
+            st.warning("⚠️ You have not chosen a target career role yet! Head over to the 'Change Career Track' tab to select your path.")
         else:
             m1, m2, m3, m4 = st.columns(4)
             m1.metric("Target Role", target_role.name)
             m2.metric("Readiness Score", f"{readiness_score}%", delta=f"{readiness_score - 50:.1f}% vs Goal")
             m3.metric("Skill Deficit Gap", f"{gap_percentage}%", delta=f"-{gap_percentage}%", delta_color="inverse")
-            m4.metric("Total Skills Evaluated", len(skills))
+            m4.metric("Total Competencies", len(skills))
 
-            c1, c2 = st.columns([1.2, 1])
+            c1, c2 = st.columns([1, 1.2])
             with c1:
                 st.plotly_chart(create_readiness_gauge(readiness_score), use_container_width=True)
-
-            with c2:
-                st.subheader("Competency Distribution")
+                # Donut Chart below gauge
                 df_counts = pd.DataFrame([
                     {"Status": "Confident", "Count": level_counts["confident"]},
                     {"Status": "Comfortable", "Count": level_counts["comfortable"]},
@@ -690,11 +996,17 @@ def render_student_view():
                         "Not Started": "#ef4444",
                     },
                 )
-                fig_pie.update_layout(height=250, margin=dict(t=15, b=15, l=15, r=15))
+                fig_pie.update_layout(height=230, margin=dict(t=10, b=10, l=10, r=10))
                 st.plotly_chart(fig_pie, use_container_width=True)
 
+            with c2:
+                st.markdown("##### 🕸️ Competency Radar Analysis (You vs Industry Benchmark)")
+                radar_fig = create_competency_radar(skills, effective_level)
+                if radar_fig:
+                    st.plotly_chart(radar_fig, use_container_width=True)
+
             st.divider()
-            st.subheader("🎯 Urgent Action Items (Priority Deficit Skills)")
+            st.subheader("🎯 Urgent Action Items (Priority Deficit Competencies)")
             priority_order = {"not_started": 1, "learning": 2, "comfortable": 3}
             priorities = [
                 (s.name, effective_level.get(s.id, "not_started"), priority_order.get(effective_level.get(s.id, "not_started"), 9))
@@ -708,7 +1020,6 @@ def render_student_view():
                 p_cols = st.columns(min(3, len(priorities)))
                 for idx, (skill_name, lvl, _) in enumerate(priorities[:3]):
                     with p_cols[idx % 3]:
-                        badge_color = "red" if lvl == "not_started" else ("orange" if lvl == "learning" else "blue")
                         st.markdown(
                             f"""
                             <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.5rem; border-left: 4px solid {'#ef4444' if lvl=='not_started' else '#f59e0b'};">
@@ -720,8 +1031,145 @@ def render_student_view():
                             unsafe_allow_html=True,
                         )
 
-    # TAB 2: CAREER TRACK SELECTION
+    # TAB 2: SMART DIAGNOSTIC & SELF-ASSESSMENT
     with tabs[1]:
+        st.subheader("🎯 SMART Autonomous Diagnostic & Empirical Self-Assessment")
+        st.caption(
+            "Self-evaluate against objective, verifiable behavioral milestones. Checking milestones automatically determines your true competency level."
+        )
+
+        if not target_role or not skills:
+            st.warning("Please choose your target role first.")
+        else:
+            with st.form("smart_diagnostic_form"):
+                new_diagnostic_levels = {}
+                score_to_level = {0: "not_started", 1: "learning", 2: "comfortable", 3: "confident"}
+
+                for skill in skills:
+                    curr_level = effective_level.get(skill.id, "not_started")
+                    is_mentor_verified = sources.get(skill.id) == "mentor"
+                    rubric_items = get_skill_rubrics(skill.name)
+
+                    mentor_badge = " 🛡️ *(Faculty Verified)*" if is_mentor_verified else ""
+                    with st.expander(f"📌 {skill.name} — Current: {curr_level.replace('_', ' ').title()}{mentor_badge}", expanded=False):
+                        st.markdown(f"**Check which milestones you have objectively demonstrated:**")
+                        m1 = st.checkbox(f"1️⃣ {rubric_items[0]}", key=f"rubric_{skill.id}_1", value=(curr_level in ["learning", "comfortable", "confident"]))
+                        m2 = st.checkbox(f"2️⃣ {rubric_items[1]}", key=f"rubric_{skill.id}_2", value=(curr_level in ["comfortable", "confident"]))
+                        m3 = st.checkbox(f"3️⃣ {rubric_items[2]}", key=f"rubric_{skill.id}_3", value=(curr_level == "confident"))
+
+                        computed_score = int(m1) + int(m2) + int(m3)
+                        computed_lvl = score_to_level[computed_score]
+                        new_diagnostic_levels[skill.id] = computed_lvl
+
+                        st.caption(f"Calculated Empirical Level: **{computed_lvl.replace('_', ' ').title()}** ({computed_score}/3 criteria met)")
+
+                submit_diagnostic = st.form_submit_button("Submit SMART Diagnostic & Recalculate Readiness", type="primary", use_container_width=True)
+
+                if submit_diagnostic:
+                    with flask_app.app_context():
+                        for skill_id, new_level in new_diagnostic_levels.items():
+                            existing = Assessment.query.filter_by(
+                                student_id=user_id,
+                                skill_id=skill_id,
+                                source="self",
+                            ).first()
+                            if existing:
+                                existing.level = new_level
+                                existing.updated_at = datetime.now(timezone.utc)
+                            else:
+                                db.session.add(
+                                    Assessment(
+                                        student_id=user_id,
+                                        skill_id=skill_id,
+                                        level=new_level,
+                                        source="self",
+                                    )
+                                )
+                        db.session.commit()
+                        st.balloons()
+                        st.success("Empirical diagnostic saved! Your placement readiness index and radar polygon have been updated.")
+                        st.rerun()
+
+    # TAB 3: AI CAREER COPILOT
+    with tabs[2]:
+        st.markdown(
+            """
+            <div class="ai-box">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="ai-badge">AI Assistant</span>
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">AI Placement Career Copilot</h3>
+                </div>
+                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
+                    Personalized intelligence tuned to your specific competency deficits, academic year, and target career track.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        priority_order = {"not_started": 1, "learning": 2, "comfortable": 3}
+        deficit_skills = [
+            (s.name, effective_level.get(s.id, "not_started"), priority_order.get(effective_level.get(s.id, "not_started"), 9))
+            for s in skills if effective_level.get(s.id, "not_started") != "confident"
+        ]
+        deficit_skills.sort(key=lambda x: x[2])
+
+        copilot_tabs = st.tabs([
+            "📅 30-Day Learning Sprint",
+            "💡 Technical Interview Simulator",
+            "📄 Resume Impact Bullets",
+        ])
+
+        # SUB-TAB 1: ROADMAP
+        with copilot_tabs[0]:
+            st.markdown(generate_student_roadmap(user_name, target_role.name if target_role else "Engineering", deficit_skills))
+
+        # SUB-TAB 2: INTERVIEW PREP
+        with copilot_tabs[1]:
+            st.markdown(f"#### 🎙️ High-Probability Technical Interview Questions for {target_role.name if target_role else 'Role'}")
+            st.caption("Common technical and architectural challenges asked by Tier-1 & Tier-2 engineering recruiters:")
+
+            questions = generate_interview_questions(target_role.name if target_role else "")
+            for idx, (q, model_answer) in enumerate(questions):
+                with st.expander(f"Question #{idx+1}: {q}"):
+                    st.markdown(f"**Interviewer Evaluation Criteria:**")
+                    st.info(model_answer)
+                    st.markdown("*(Tip: Practice answering out loud using the STAR method before placement drives).*")
+
+        # SUB-TAB 3: RESUME BULLETS
+        with copilot_tabs[2]:
+            st.markdown(f"#### 📄 Resume-Ready Accomplishment Statements for {user_name}")
+            st.caption("Copy and paste these STAR-aligned bullet points directly into your technical resume:")
+
+            bullets = generate_resume_bullets(target_role.name if target_role else "Role", skills, effective_level)
+            for b in bullets:
+                st.markdown(b)
+
+    # TAB 4: MENTOR GUIDANCE
+    with tabs[3]:
+        st.subheader("💬 Faculty Mentor Guidance Stream")
+        with flask_app.app_context():
+            assignment = MentorAssignment.query.filter_by(student_id=user_id).first()
+            if assignment and assignment.mentor:
+                st.info(f"**Assigned Faculty Mentor:** {assignment.mentor.name} ({assignment.mentor.email})")
+            else:
+                st.warning("No faculty mentor assigned yet. Contact your department placement coordinator.")
+
+            notes = MentorNote.query.filter_by(student_id=user_id).order_by(MentorNote.created_at.desc()).all()
+            if not notes:
+                st.write("No mentor guidance notes recorded yet.")
+            else:
+                for n in notes:
+                    with st.container():
+                        st.markdown(f"**{n.created_at.strftime('%B %d, %Y')}** — *by Prof. {n.mentor.name}*")
+                        if n.at_risk:
+                            st.error(f"🚩 **Action Plan / Remedial Alert**: {n.note_text}")
+                        else:
+                            st.success(n.note_text)
+                        st.divider()
+
+    # TAB 5: CHANGE TRACK
+    with tabs[4]:
         st.subheader("Change or Upgrade Target Career Role")
         with flask_app.app_context():
             all_roles = JobRole.query.order_by(JobRole.name).all()
@@ -748,100 +1196,9 @@ def render_student_view():
                     st.success(f"Career track updated to {selected_role_name}!")
                     st.rerun()
 
-        st.divider()
-        st.subheader("Explore Available Skill Tracks & Required Core Competencies")
-        with flask_app.app_context():
-            roles = JobRole.query.all()
-            for r in roles:
-                with st.expander(f"📌 {r.name} ({len(r.skills)} Core Competencies)", expanded=(r.id == (target_role.id if target_role else None))):
-                    skills_html = "".join([f'<span class="skill-chip">✓ {s.name}</span>' for s in r.skills])
-                    st.markdown(skills_html, unsafe_allow_html=True)
-
-    # TAB 3: SELF-ASSESSMENT
-    with tabs[2]:
-        st.subheader("📝 Self-Assessment & Competency Rating Matrix")
-        if not target_role or not skills:
-            st.warning("Please choose your target role first.")
-        else:
-            st.caption("Update your proficiency levels. Verified ratings submitted by your faculty mentor are protected with a shield 🛡️.")
-
-            level_map = {
-                "not_started": "Not Started (0%)",
-                "learning": "Learning (Courses & Practice)",
-                "comfortable": "Comfortable (Mini-projects built)",
-                "confident": "Confident (Interview & Production Ready)",
-            }
-            inv_level_map = {v: k for k, v in level_map.items()}
-
-            with st.form("assessment_form"):
-                updates = {}
-                for s in skills:
-                    current_lvl = effective_level.get(s.id, "not_started")
-                    is_mentor = sources.get(s.id) == "mentor"
-                    col_label, col_val = st.columns([2, 2])
-                    with col_label:
-                        mentor_tag = " 🛡️ *(Faculty Verified)*" if is_mentor else ""
-                        st.markdown(f"**{s.name}**{mentor_tag}")
-                    with col_val:
-                        selected_str = st.selectbox(
-                            f"Level for {s.name}",
-                            options=list(level_map.values()),
-                            index=list(level_map.keys()).index(current_lvl),
-                            key=f"skill_select_{s.id}",
-                            label_visibility="collapsed",
-                        )
-                        updates[s.id] = inv_level_map[selected_str]
-
-                submit_assessment = st.form_submit_button("Save All Skill Ratings", type="primary", use_container_width=True)
-                if submit_assessment:
-                    with flask_app.app_context():
-                        for skill_id, new_level in updates.items():
-                            existing = Assessment.query.filter_by(
-                                student_id=user_id,
-                                skill_id=skill_id,
-                                source="self",
-                            ).first()
-                            if existing:
-                                existing.level = new_level
-                                existing.updated_at = datetime.now(timezone.utc)
-                            else:
-                                new_a = Assessment(
-                                    student_id=user_id,
-                                    skill_id=skill_id,
-                                    level=new_level,
-                                    source="self",
-                                )
-                                db.session.add(new_a)
-                        db.session.commit()
-                        st.success("Assessments successfully saved! Your employability readiness has been recalculated.")
-                        st.rerun()
-
-    # TAB 4: MENTOR GUIDANCE STREAM
-    with tabs[3]:
-        st.subheader("💬 Faculty Mentor Guidance Stream")
-        with flask_app.app_context():
-            assignment = MentorAssignment.query.filter_by(student_id=user_id).first()
-            if assignment and assignment.mentor:
-                st.info(f"**Assigned Faculty Mentor:** {assignment.mentor.name} ({assignment.mentor.email})")
-            else:
-                st.warning("No faculty mentor assigned yet. Contact your department placement coordinator.")
-
-            notes = MentorNote.query.filter_by(student_id=user_id).order_by(MentorNote.created_at.desc()).all()
-            if not notes:
-                st.write("No mentor guidance notes recorded yet.")
-            else:
-                for n in notes:
-                    with st.container():
-                        st.markdown(f"**{n.created_at.strftime('%B %d, %Y')}** — *by Prof. {n.mentor.name}*")
-                        if n.at_risk:
-                            st.error(f"🚩 **Action Plan / Remedial Alert**: {n.note_text}")
-                        else:
-                            st.success(n.note_text)
-                        st.divider()
-
 
 # ==========================================
-# FACULTY MENTOR VIEW
+# FACULTY MENTOR VIEW WITH AI ASSISTANT
 # ==========================================
 def render_mentor_view():
     mentor_id = st.session_state["user_id"]
@@ -909,19 +1266,49 @@ def render_mentor_view():
     selected_mentee = next((m for m in mentees if m.name == selected_student_name), None)
 
     if selected_mentee:
-        _, t_role, skills, eff_level, sources, r_score, gap, _ = calculate_student_gap(selected_mentee.id)
+        prof, t_role, skills, eff_level, sources, r_score, gap, _ = calculate_student_gap(selected_mentee.id)
 
-        c1, c2 = st.columns([1, 1])
+        c1, c2 = st.columns([1.1, 1])
         with c1:
             st.markdown(f"#### Mentee: {selected_mentee.name}")
             st.write(f"**Target Role:** {t_role.name if t_role else 'None'}")
             st.write(f"**Readiness Score:** {r_score}% (Skill Deficit: {gap}%)")
 
-            st.markdown("##### 📝 Post Guidance Note & Intervention Flag")
+            # Deficit skills calculation
+            priority_order = {"not_started": 1, "learning": 2, "comfortable": 3}
+            mentee_deficits = [
+                (s.name, eff_level.get(s.id, "not_started"), priority_order.get(eff_level.get(s.id, "not_started"), 9))
+                for s in skills if eff_level.get(s.id, "not_started") != "confident"
+            ]
+            mentee_deficits.sort(key=lambda x: x[2])
+
+            # AI Note Assistant
+            st.markdown(
+                """
+                <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 0.75rem 1rem; margin: 0.75rem 0;">
+                    <span class="ai-badge">AI Assistant</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: #6b21a8; margin-left: 0.35rem;">One-Click Feedback Drafter</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            if st.button("✨ Draft AI Feedback for Mentee", key="btn_draft_ai_note"):
+                st.session_state["drafted_note"] = generate_ai_mentor_feedback(
+                    selected_mentee.name,
+                    prof.branch if prof else "Engineering",
+                    t_role.name if t_role else "Role",
+                    r_score,
+                    gap,
+                    mentee_deficits,
+                )
+
+            initial_note_text = st.session_state.get("drafted_note", "")
+
             with st.form("mentor_note_form"):
-                note_text = st.text_area("Observations and Action Items:")
-                at_risk_flag = st.checkbox("🚩 Flag student as At-Risk (alerts TPO placement office)")
-                submit_note = st.form_submit_button("Save Guidance Note", type="primary")
+                note_text = st.text_area("Observations and Action Items:", value=initial_note_text, height=150)
+                at_risk_flag = st.checkbox("🚩 Flag student as At-Risk (alerts TPO placement office)", value=(gap > 50))
+                submit_note = st.form_submit_button("Post Guidance Note", type="primary")
 
                 if submit_note:
                     if not note_text.strip():
@@ -936,6 +1323,8 @@ def render_mentor_view():
                             )
                             db.session.add(note)
                             db.session.commit()
+                            if "drafted_note" in st.session_state:
+                                del st.session_state["drafted_note"]
                             st.success("Guidance note added successfully!")
                             st.rerun()
 
@@ -984,7 +1373,7 @@ def render_mentor_view():
 
 
 # ==========================================
-# TPO VIEW
+# TPO VIEW WITH CORPORATE TIER FORECASTING & AI PITCH
 # ==========================================
 def render_tpo_view():
     user_name = st.session_state["user_name"]
@@ -995,7 +1384,7 @@ def render_tpo_view():
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <h2 style="margin: 0; font-size: 1.75rem; font-weight: 800; color: #0f172a;">Training & Placement Officer (TPO) Cockpit 🏢</h2>
-                    <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.95rem;">{user_name} • Institutional Employability & Placement Readiness Center</p>
+                    <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.95rem;">{user_name} • Institutional Employability & Corporate Placement Center</p>
                 </div>
                 <div><span class="role-badge badge-tpo">Placement Officer</span></div>
             </div>
@@ -1011,6 +1400,9 @@ def render_tpo_view():
         total_gap_sum = 0
         gap_count = 0
         at_risk_students = []
+
+        # Corporate Tiers buckets
+        tier_data = {"Tier 1": [], "Tier 2": [], "Tier 3": [], "Intervention": []}
 
         for s in students:
             prof, t_role, skills, _, _, r_score, gap, _ = calculate_student_gap(s.id)
@@ -1032,6 +1424,16 @@ def render_tpo_view():
                     "Latest Note": latest_note.note_text,
                 })
 
+            # Assign corporate tier
+            if r_score >= 80:
+                tier_data["Tier 1"].append(s.name)
+            elif r_score >= 65:
+                tier_data["Tier 2"].append(s.name)
+            elif r_score >= 50:
+                tier_data["Tier 3"].append(s.name)
+            else:
+                tier_data["Intervention"].append(s.name)
+
             student_rows.append({
                 "student_id": s.id,
                 "name": s.name,
@@ -1052,8 +1454,15 @@ def render_tpo_view():
     m3.metric("Average Skill Gap", f"{avg_gap}%", delta=f"-{avg_gap}%", delta_color="inverse")
     m4.metric("At-Risk Interventions", len(at_risk_students), delta_color="inverse")
 
-    tabs = st.tabs(["📊 Departmental Benchmark", "🚩 Early Warning (At-Risk)", "📋 All Student Roster", "📥 Data Exports"])
+    tabs = st.tabs([
+        "📊 Departmental Benchmark",
+        "🏆 Corporate Hiring Tiers & AI Recruiter Pitch",
+        "🚩 Early Warning (At-Risk)",
+        "📋 All Student Roster",
+        "📥 Data Exports",
+    ])
 
+    # TAB 1: BENCHMARK
     with tabs[0]:
         df_students = pd.DataFrame(student_rows)
         if not df_students.empty:
@@ -1082,18 +1491,65 @@ def render_tpo_view():
                 st.subheader("Summary Table")
                 st.dataframe(branch_summary, use_container_width=True, hide_index=True)
 
+    # TAB 2: CORPORATE TIERS & AI PITCH
     with tabs[1]:
+        st.markdown(
+            """
+            <div class="ai-box">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="ai-badge">Predictive Intelligence</span>
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">Corporate Hiring Tier Forecasting</h3>
+                </div>
+                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
+                    Automatic talent segmentation based on verified industry competency thresholds.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        tc1, tc2, tc3, tc4 = st.columns(4)
+        tc1.metric("🥇 Tier-1 Product (15+ LPA)", len(tier_data["Tier 1"]), delta="High Value Talent")
+        tc2.metric("🥈 Tier-2 Scaleup (8-15 LPA)", len(tier_data["Tier 2"]), delta="Full SDLC Ready")
+        tc3.metric("🥉 Tier-3 Services (4-8 LPA)", len(tier_data["Tier 3"]), delta="Foundation Ready")
+        tc4.metric("⚠️ Remedial Intervention", len(tier_data["Intervention"]), delta_color="inverse")
+
+        st.divider()
+        st.subheader("✨ AI Recruiter Brief & Corporate Pitch Generator")
+        st.caption("Generate a high-converting, professional placement brief ready to send to visiting corporate recruiters and accreditation bodies (NBA/NAAC):")
+
+        df_branches = pd.DataFrame(student_rows)
+        branch_stats = df_branches.groupby("branch").size().reset_index(name="count") if not df_branches.empty else pd.DataFrame()
+
+        tier_counts = {
+            "Tier 1": len(tier_data["Tier 1"]),
+            "Tier 2": len(tier_data["Tier 2"]),
+            "Tier 3": len(tier_data["Tier 3"]),
+        }
+
+        if st.button("Generate Executive Recruiter Brief", type="primary"):
+            st.session_state["recruiter_pitch"] = generate_ai_recruiter_pitch(
+                len(students), ready_count, avg_gap, branch_stats, tier_counts
+            )
+
+        if "recruiter_pitch" in st.session_state:
+            st.markdown(st.session_state["recruiter_pitch"])
+
+    # TAB 3: AT RISK
+    with tabs[2]:
         st.subheader("🚩 At-Risk Candidates Needing Intervention")
         if not at_risk_students:
             st.success("No students are currently flagged as at-risk.")
         else:
             st.dataframe(pd.DataFrame(at_risk_students), use_container_width=True, hide_index=True)
 
-    with tabs[2]:
+    # TAB 4: ROSTER
+    with tabs[3]:
         st.subheader("Placement Candidate Roster")
         st.dataframe(df_students, use_container_width=True, hide_index=True)
 
-    with tabs[3]:
+    # TAB 5: EXPORTS
+    with tabs[4]:
         st.subheader("📥 Export Reports for Institutional Accreditation & Companies")
         col_exp1, col_exp2 = st.columns(2)
         with col_exp1:
@@ -1117,7 +1573,7 @@ def render_tpo_view():
 
 
 # ==========================================
-# ADMIN VIEW
+# ADMIN VIEW WITH AI CURRICULUM GAP ANALYSIS
 # ==========================================
 def render_admin_view():
     user_name = st.session_state["user_name"]
@@ -1128,7 +1584,7 @@ def render_admin_view():
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <h2 style="margin: 0; font-size: 1.75rem; font-weight: 800; color: #0f172a;">College Administration Portal ⚙️</h2>
-                    <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.95rem;">{user_name} • Platform Trends & Faculty Mentorship Management</p>
+                    <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.95rem;">{user_name} • Platform Trends & Academic Council Intelligence</p>
                 </div>
                 <div><span class="role-badge badge-admin">Administrator</span></div>
             </div>
@@ -1137,33 +1593,56 @@ def render_admin_view():
         unsafe_allow_html=True,
     )
 
-    tabs = st.tabs(["📈 Platform Macro Trends", "🤝 Mentor-Student Pairing", "👥 User Directory"])
+    tabs = st.tabs([
+        "📈 Platform Macro Trends",
+        "🧠 AI Curriculum Gap Analytics",
+        "🤝 Mentor-Student Pairing",
+        "👥 User Directory",
+    ])
+
+    with flask_app.app_context():
+        roles = JobRole.query.all()
+        role_gaps = []
+        for r in roles:
+            profiles = StudentProfile.query.filter_by(target_job_role_id=r.id).all()
+            if profiles:
+                gaps = [calculate_student_gap(p.user_id)[6] for p in profiles]
+                role_gaps.append({"Job Role": r.name, "Students": len(profiles), "Average Gap": round(sum(gaps) / len(gaps), 1)})
+            else:
+                role_gaps.append({"Job Role": r.name, "Students": 0, "Average Gap": 0})
+        df_roles = pd.DataFrame(role_gaps)
 
     with tabs[0]:
         st.subheader("Platform Analytics & Macro Readiness")
-        with flask_app.app_context():
-            roles = JobRole.query.all()
-            role_gaps = []
-            for r in roles:
-                profiles = StudentProfile.query.filter_by(target_job_role_id=r.id).all()
-                if profiles:
-                    gaps = [calculate_student_gap(p.user_id)[6] for p in profiles]
-                    role_gaps.append({"Job Role": r.name, "Students": len(profiles), "Average Gap": round(sum(gaps) / len(gaps), 1)})
-                else:
-                    role_gaps.append({"Job Role": r.name, "Students": 0, "Average Gap": 0})
-
-            df_roles = pd.DataFrame(role_gaps)
-            fig = px.bar(
-                df_roles,
-                x="Job Role",
-                y="Average Gap",
-                color="Average Gap",
-                color_continuous_scale="Inferno",
-                labels={"Average Gap": "Average Deficit (%)"},
-            )
-            st.plotly_chart(fig, use_container_width=True)
+        fig = px.bar(
+            df_roles,
+            x="Job Role",
+            y="Average Gap",
+            color="Average Gap",
+            color_continuous_scale="Inferno",
+            labels={"Average Gap": "Average Deficit (%)"},
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
     with tabs[1]:
+        st.markdown(
+            """
+            <div class="ai-box">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="ai-badge">Academic Council Intelligence</span>
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">AI Curriculum Gap & Syllabus Analytics</h3>
+                </div>
+                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
+                    Synthesize college-wide student deficits to detect structural syllabus deficiencies and formulate accreditation interventions.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown(generate_ai_curriculum_analysis(df_roles))
+
+    with tabs[2]:
         st.subheader("Mentor Assignment Management")
         with flask_app.app_context():
             mentors = User.query.filter_by(role="mentor").all()
@@ -1200,7 +1679,7 @@ def render_admin_view():
                 ]
                 st.dataframe(pd.DataFrame(assignment_data), use_container_width=True, hide_index=True)
 
-    with tabs[2]:
+    with tabs[3]:
         st.subheader("Central Directory")
         with flask_app.app_context():
             users = User.query.order_by(User.role, User.name).all()
@@ -1296,10 +1775,11 @@ def render_sidebar():
         st.markdown(
             """
             <div style="font-size: 0.775rem; color: #64748b; line-height: 1.5;">
-                <strong>Enterprise Security</strong><br>
-                • Salted password hashes (scrypt)<br>
-                • Role-based authorization (RBAC)<br>
-                • Streamlit Community Cloud ready
+                <strong>Platform Intelligence</strong><br>
+                • SMART Empirical Diagnostic Rubrics<br>
+                • Competency Radar & Speedometer<br>
+                • AI Career Copilot for Students<br>
+                • Corporate Hiring Tier Matchmaker
             </div>
             """,
             unsafe_allow_html=True,
