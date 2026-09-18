@@ -1753,7 +1753,74 @@ def render_admin_view():
             unsafe_allow_html=True,
         )
 
-        st.markdown(generate_ai_curriculum_analysis(df_roles))
+        st.subheader("🏛️ Institutional Syllabus Gap Analysis & Board of Studies Action Plan")
+        st.caption("One-click diagnostic across all active engineering tracks (AI/ML, DevOps, Full-Stack, Cloud) to pinpoint syllabus gaps and formulate accreditation improvements:")
+
+        if "curriculum_plan" not in st.session_state:
+            st.session_state["curriculum_plan"] = generate_ai_curriculum_analysis(df_roles)
+
+        col_curr_btn, col_curr_dl = st.columns([2, 1])
+        with col_curr_btn:
+            if st.button("🧠 AI Institutional Curriculum Gap Detector", type="primary", use_container_width=True, key="btn_run_curriculum"):
+                st.session_state["curriculum_plan"] = generate_ai_curriculum_analysis(df_roles)
+                st.success("✅ AI Institutional Curriculum Gap Detector executed successfully! Academic Council action plan refreshed.")
+        with col_curr_dl:
+            st.download_button(
+                "📥 Download Action Plan (.md)",
+                data=st.session_state.get("curriculum_plan", ""),
+                file_name="academic_council_curriculum_gap_audit.md",
+                mime="text/markdown",
+                use_container_width=True,
+                key="btn_dl_curriculum"
+            )
+
+        # 3 Structured Recommendation Cards
+        rc1, rc2, rc3 = st.columns(3)
+        with rc1:
+            st.markdown(
+                """
+                <div style="background: #fdf4ff; border: 1px solid #f0abfc; border-left: 4px solid #c026d3; border-radius: 8px; padding: 1rem; height: 100%;">
+                    <div style="font-weight: 700; color: #701a75; font-size: 0.95rem;">📘 Value-Added Elective Courses</div>
+                    <div style="font-size: 0.825rem; color: #4a044e; margin-top: 0.35rem; line-height: 1.5;">
+                        Recommend 2-credit intensive electives on <em>Cloud-Native Systems & Microservices</em> to bridge applied software architecture gaps.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with rc2:
+            st.markdown(
+                """
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; border-radius: 8px; padding: 1rem; height: 100%;">
+                    <div style="font-weight: 700; color: #1e3a8a; font-size: 0.95rem;">👨‍🏫 Faculty Development (FDP)</div>
+                    <div style="font-size: 0.825rem; color: #172554; margin-top: 0.35rem; line-height: 1.5;">
+                        Conduct semester industry immersion FDPs for CSE & IT faculty on <em>Production Full-Stack Patterns</em> and containerized DevOps workflows.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with rc3:
+            st.markdown(
+                """
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a; border-radius: 8px; padding: 1rem; height: 100%;">
+                    <div style="font-weight: 700; color: #14532d; font-size: 0.95rem;">🔬 Capstone Lab Revamp</div>
+                    <div style="font-size: 0.825rem; color: #052e16; margin-top: 0.35rem; line-height: 1.5;">
+                        Mandate that 30% of laboratory internal assessment evaluates public GitHub repositories, Dockerized runs, and automated unit test coverage.
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        st.markdown(
+            """
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin-top: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(st.session_state["curriculum_plan"])
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with tabs[1]:
         st.subheader("Platform Analytics & Macro Readiness")

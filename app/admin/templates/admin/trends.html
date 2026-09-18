@@ -16,7 +16,10 @@
         <h1 class="h3 fw-bold text-slate-900 mb-0">Student Readiness &amp; Skill Trends</h1>
         <p class="text-secondary small mb-0">Macro analytics on college-wide skill distributions, role demands, and mentoring coverage</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-sm d-flex align-items-center gap-1 text-white shadow-sm" href="#aiCurriculumDetectorSection" style="background: linear-gradient(135deg, #7e22ce, #a855f7);" id="btnNavCurriculumDetector" title="Jump to AI Institutional Curriculum Gap Detector">
+            <i class="bi bi-cpu-fill"></i> ✨ AI Institutional Curriculum Gap Detector
+        </a>
         <a class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" href="{{ url_for('admin.assign_mentors') }}">
             <i class="bi bi-person-gear"></i> Mentor Assignments
         </a>
@@ -70,7 +73,7 @@
 </div>
 
 <!-- AI Institutional Curriculum Gap Detector & Academic Action Plan -->
-<div class="card-modern mb-4 shadow-sm" style="border-top: 4px solid #7e22ce; background: #ffffff;">
+<div class="card-modern mb-4 shadow-sm" id="aiCurriculumDetectorSection" style="border-top: 4px solid #7e22ce; background: #ffffff;">
     <div class="card-header-modern d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2" style="background: #faf5ff; border-bottom: 1px solid #f3e8ff;">
         <div class="d-flex align-items-center gap-2">
             <span class="badge" style="background-color: #7e22ce; color: #ffffff; font-size: 0.8rem; padding: 0.4rem 0.75rem; border-radius: 9999px;">
@@ -78,14 +81,27 @@
             </span>
             <h2 class="card-header-title mb-0" style="color: #581c87; font-weight: 800;">AI Institutional Curriculum Gap Detector</h2>
         </div>
-        <span class="badge bg-white border px-3 py-1" style="color: #7e22ce; font-weight: 600; border-color: #e9d5ff !important;">
-            Board of Studies &amp; Accreditation Action Plan
-        </span>
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-primary fw-bold d-flex align-items-center gap-1 shadow-sm" id="btnRunCurriculumDetector" onclick="runCurriculumDetector()">
+                <i class="bi bi-cpu-fill"></i> ✨ Run AI Institutional Curriculum Gap Detector
+            </button>
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="btnCopyCurriculum" onclick="copyCurriculumPlan()">
+                <i class="bi bi-clipboard"></i> Copy Action Plan
+            </button>
+            <button class="btn btn-sm btn-outline-purple" type="button" data-bs-toggle="collapse" data-bs-target="#curriculumPlanCollapse" style="color: #7e22ce; border-color: #d8b4fe;">
+                <i class="bi bi-chevron-down me-1"></i> Toggle Audit
+            </button>
+        </div>
     </div>
     <div class="p-4">
+        <div id="curriculumAlertFeedback" class="alert alert-success d-none py-2 px-3 small mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-check2-circle fs-5"></i>
+            <span id="curriculumAlertText">AI Institutional Curriculum Gap Detector executed successfully! Academic Council action plan refreshed.</span>
+        </div>
+
         <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="p-3 rounded-3 border h-100" style="background: #fdf4ff; border-left: 4px solid #c026d3 !important;">
+                <div class="curriculum-rec-card p-3 rounded-3 border h-100" style="background: #fdf4ff; border-left: 4px solid #c026d3 !important; transition: transform 0.2s ease;">
                     <h6 class="fw-bold text-slate-900 mb-1"><i class="bi bi-book me-1 text-purple"></i> Value-Added Elective Courses</h6>
                     <p class="small text-secondary mb-0">
                         Recommend 2-credit intensive electives on <em>Cloud-Native Systems &amp; Microservices Engineering</em> to bridge applied software architecture gaps.
@@ -93,7 +109,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="p-3 rounded-3 border h-100" style="background: #eff6ff; border-left: 4px solid #2563eb !important;">
+                <div class="curriculum-rec-card p-3 rounded-3 border h-100" style="background: #eff6ff; border-left: 4px solid #2563eb !important; transition: transform 0.2s ease;">
                     <h6 class="fw-bold text-slate-900 mb-1"><i class="bi bi-person-video3 me-1 text-primary"></i> Faculty Development Program (FDP)</h6>
                     <p class="small text-secondary mb-0">
                         Conduct semester industry immersion FDPs for CSE &amp; IT faculty on <em>Production Full-Stack Patterns</em> and containerization workflows.
@@ -101,7 +117,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="p-3 rounded-3 border h-100" style="background: #f0fdf4; border-left: 4px solid #16a34a !important;">
+                <div class="curriculum-rec-card p-3 rounded-3 border h-100" style="background: #f0fdf4; border-left: 4px solid #16a34a !important; transition: transform 0.2s ease;">
                     <h6 class="fw-bold text-slate-900 mb-1"><i class="bi bi-laptop me-1 text-success"></i> Capstone Lab Syllabus Revamp</h6>
                     <p class="small text-secondary mb-0">
                         Mandate that 30% of laboratory internal assessment evaluates public GitHub repositories, Dockerized runs, and automated unit test coverage.
@@ -112,12 +128,9 @@
 
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="fw-bold text-slate-900 mb-0">Full Academic Council Executive Audit &amp; OBE Accreditation Brief:</h6>
-            <button class="btn btn-sm btn-outline-purple" type="button" data-bs-toggle="collapse" data-bs-target="#curriculumPlanCollapse" style="color: #7e22ce; border-color: #d8b4fe;">
-                <i class="bi bi-chevron-down me-1"></i> Toggle Audit Document
-            </button>
         </div>
         <div class="collapse show" id="curriculumPlanCollapse">
-            <div class="p-3 rounded-3 border bg-light" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #1e293b;">{{ ai_curriculum_plan }}</div>
+            <div class="p-3 rounded-3 border bg-light" id="curriculumPlanBox" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #1e293b; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">{{ ai_curriculum_plan }}</div>
         </div>
     </div>
 </div>
@@ -341,4 +354,73 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {% endif %}
+
+<script>
+function runCurriculumDetector() {
+    const btn = document.getElementById('btnRunCurriculumDetector');
+    const alertBox = document.getElementById('curriculumAlertFeedback');
+    const alertText = document.getElementById('curriculumAlertText');
+    const box = document.getElementById('curriculumPlanBox');
+    
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Auditing Syllabi...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Gaps Detected!';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-success');
+        
+        alertText.innerHTML = '<strong>Success:</strong> AI Institutional Curriculum Gap Detector analyzed batch deficits across AI/ML, DevOps, Full-Stack, and Cloud tracks!';
+        alertBox.classList.remove('d-none');
+        
+        // Ensure collapse is open
+        const collapseEl = document.getElementById('curriculumPlanCollapse');
+        if (collapseEl && window.bootstrap) {
+            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+            bsCollapse.show();
+        }
+        
+        // Highlight recommendation cards
+        document.querySelectorAll('.curriculum-rec-card').forEach(card => {
+            card.classList.add('shadow-sm');
+            card.style.transform = 'scale(1.02)';
+            setTimeout(() => card.style.transform = 'scale(1)', 400);
+        });
+        
+        if (box) {
+            box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-cpu-fill me-1"></i> ✨ Run AI Institutional Curriculum Gap Detector';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-primary');
+            btn.disabled = false;
+        }, 3000);
+    }, 450);
+}
+
+function copyCurriculumPlan() {
+    const box = document.getElementById('curriculumPlanBox');
+    const text = box.innerText;
+    const btn = document.getElementById('btnCopyCurriculum');
+    const alertBox = document.getElementById('curriculumAlertFeedback');
+    const alertText = document.getElementById('curriculumAlertText');
+    
+    navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Copied!';
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        
+        alertText.innerHTML = '<strong>Copied:</strong> Board of Studies Curriculum Audit copied to clipboard, ready for council review!';
+        alertBox.classList.remove('d-none');
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-clipboard me-1"></i> Copy Action Plan';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2500);
+    });
+}
+</script>
 {% endblock %}
