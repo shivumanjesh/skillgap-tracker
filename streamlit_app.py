@@ -1585,8 +1585,8 @@ def render_tpo_view():
         tc4.metric("⚠️ Remedial Intervention", len(tier_data["Intervention"]), delta="Readiness < 40%", delta_color="inverse")
 
         st.divider()
-        st.subheader("✨ AI Recruiter Executive Brief & Corporate Pitch Generator")
-        st.caption("Generate a high-converting, professional placement brief ready to send to visiting corporate recruiters and accreditation bodies (NBA/NAAC):")
+        st.subheader("✨ Generate AI Corporate Placement Pitch & Executive Brief")
+        st.caption("One-click high-converting recruitment pitch generated for visiting corporate HR teams, emphasizing verified technical competencies and NBA/NAAC compliance:")
 
         df_branches = pd.DataFrame(student_rows)
         branch_stats = df_branches.groupby("branch").size().reset_index(name="count") if not df_branches.empty else pd.DataFrame()
@@ -1598,13 +1598,38 @@ def render_tpo_view():
             "Intervention": len(tier_data["Intervention"]),
         }
 
-        if st.button("✨ Generate Executive Recruiter Pitch Brief", type="primary", use_container_width=True):
+        # Auto-populate pitch if not yet generated so the brief is instantly visible
+        if "recruiter_pitch" not in st.session_state:
             st.session_state["recruiter_pitch"] = generate_ai_recruiter_pitch(
                 len(students), ready_count, avg_gap, branch_stats, tier_counts
             )
 
+        col_pitch_btn, col_pitch_dl = st.columns([2, 1])
+        with col_pitch_btn:
+            if st.button("✨ Generate AI Corporate Placement Pitch", type="primary", use_container_width=True, key="btn_gen_pitch"):
+                st.session_state["recruiter_pitch"] = generate_ai_recruiter_pitch(
+                    len(students), ready_count, avg_gap, branch_stats, tier_counts
+                )
+                st.success("✅ AI Corporate Placement Pitch generated & updated successfully!")
+        with col_pitch_dl:
+            st.download_button(
+                "📥 Download Placement Pitch (.md)",
+                data=st.session_state.get("recruiter_pitch", ""),
+                file_name="institutional_corporate_placement_pitch.md",
+                mime="text/markdown",
+                use_container_width=True,
+                key="btn_dl_pitch"
+            )
+
         if "recruiter_pitch" in st.session_state:
+            st.markdown(
+                """
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin-top: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                """,
+                unsafe_allow_html=True,
+            )
             st.markdown(st.session_state["recruiter_pitch"])
+            st.markdown("</div>", unsafe_allow_html=True)
 
     # TAB 1: BENCHMARK
     with tabs[1]:
@@ -1833,6 +1858,48 @@ def render_sidebar():
                             • 💡 <strong>Tech Interview Simulator</strong><br>
                             • 📄 <strong>STAR Resume Bullets</strong><br>
                             • 🎯 <strong>SMART Diagnostic</strong>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            elif role == "mentor":
+                st.markdown(
+                    """
+                    <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #7e22ce; letter-spacing: 0.05em;">AI Mentorship Tools</div>
+                        <div style="margin-top: 0.4rem; font-size: 0.825rem; color: #581c87; line-height: 1.6;">
+                            • ✨ <strong>Draft AI Feedback for Mentee</strong><br>
+                            • 🗓️ <strong>14-Day Milestone Recovery</strong><br>
+                            • ⚠️ <strong>Automated At-Risk Detection</strong>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            elif role == "tpo":
+                st.markdown(
+                    """
+                    <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #7e22ce; letter-spacing: 0.05em;">AI Placement Intelligence</div>
+                        <div style="margin-top: 0.4rem; font-size: 0.825rem; color: #581c87; line-height: 1.6;">
+                            • 🏆 <strong>Corporate Tier Segmentation</strong><br>
+                            • ✨ <strong>Generate AI Corporate Pitch</strong><br>
+                            • 📜 <strong>NBA / NAAC Compliance Pitch</strong>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            elif role == "admin":
+                st.markdown(
+                    """
+                    <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #7e22ce; letter-spacing: 0.05em;">AI Governance Tools</div>
+                        <div style="margin-top: 0.4rem; font-size: 0.825rem; color: #581c87; line-height: 1.6;">
+                            • 🧠 <strong>AI Curriculum Gap Detector</strong><br>
+                            • 🏛️ <strong>Board of Studies Action Plan</strong><br>
+                            • 📊 <strong>Macro Deficit Distribution</strong>
                         </div>
                     </div>
                     """,

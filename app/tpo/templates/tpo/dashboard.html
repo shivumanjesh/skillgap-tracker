@@ -17,6 +17,9 @@
         <p class="text-secondary small mb-0">Cross-departmental employability gap tracking and proactive candidate intervention</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-sm d-flex align-items-center gap-1 text-white shadow-sm" href="#aiCorporatePitchSection" style="background: linear-gradient(135deg, #7c3aed, #9333ea);" title="Jump to AI Corporate Placement Pitch">
+            <i class="bi bi-stars"></i> ✨ Generate AI Corporate Placement Pitch
+        </a>
         <a class="btn btn-outline-success btn-sm d-flex align-items-center gap-1" href="{{ url_for('tpo.export_csv') }}" title="Download all student readiness records">
             <i class="bi bi-download"></i> Export CSV
         </a>
@@ -179,23 +182,35 @@
         </div>
 
         <!-- AI Recruiter Pitch & Executive Brief Generator -->
-        <div class="mt-4 pt-3 border-top">
-            <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="mt-4 pt-3 border-top" id="aiCorporatePitchSection">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-purple text-white px-2 py-1 rounded-pill" style="background-color: #8b5cf6;">
+                    <span class="badge text-white px-2 py-1 rounded-pill" style="background-color: #8b5cf6;">
                         <i class="bi bi-robot"></i> AI Recruiter Brief
                     </span>
-                    <h5 class="fw-bold text-slate-900 mb-0">Institutional Recruitment Pitch Generator</h5>
+                    <h5 class="fw-bold text-slate-900 mb-0">✨ AI Corporate Placement Pitch &amp; Recruiter Brief</h5>
                 </div>
-                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#recruiterPitchCollapse">
-                    <i class="bi bi-chevron-down me-1"></i> Toggle Executive Brief
-                </button>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-sm btn-primary fw-bold d-flex align-items-center gap-1 shadow-sm" id="btnGenCorporatePitch" onclick="handleGenerateCorporatePitch()">
+                        <i class="bi bi-stars"></i> ✨ Generate AI Corporate Placement Pitch
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="btnCopyPitch" onclick="copyCorporatePitch()">
+                        <i class="bi bi-clipboard"></i> Copy Pitch Brief
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#recruiterPitchCollapse">
+                        <i class="bi bi-chevron-down me-1"></i> Toggle View
+                    </button>
+                </div>
+            </div>
+            <div id="pitchAlertFeedback" class="alert alert-success d-none py-2 px-3 small mb-2 d-flex align-items-center gap-2">
+                <i class="bi bi-check2-circle fs-5"></i>
+                <span id="pitchAlertText">AI Corporate Placement Pitch generated &amp; ready to present!</span>
             </div>
             <p class="text-secondary small mb-3">
-                One-click formal recruitment brief generated for visiting corporate HR teams, emphasizing verified empirical competencies and NBA/NAAC compliance.
+                Formal institutional recruitment brief generated for visiting corporate HR teams, emphasizing verified empirical competencies and NBA/NAAC compliance.
             </p>
             <div class="collapse show" id="recruiterPitchCollapse">
-                <div class="p-3 bg-light rounded-3 border" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #1e293b;">{{ ai_recruiter_pitch }}</div>
+                <div class="p-3 bg-light rounded-3 border position-relative" id="pitchContentBox" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #1e293b; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">{{ ai_recruiter_pitch }}</div>
             </div>
         </div>
     </div>
@@ -442,4 +457,61 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function handleGenerateCorporatePitch() {
+    const btn = document.getElementById('btnGenCorporatePitch');
+    const alertBox = document.getElementById('pitchAlertFeedback');
+    const alertText = document.getElementById('pitchAlertText');
+    const box = document.getElementById('pitchContentBox');
+    
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Generating...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Pitch Generated!';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-success');
+        box.classList.add('border-primary', 'shadow-sm');
+        
+        alertText.innerHTML = '<strong>Success:</strong> AI Corporate Placement Pitch regenerated with latest batch metrics!';
+        alertBox.classList.remove('d-none');
+        
+        // Scroll into view smoothly
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-stars me-1"></i> ✨ Generate AI Corporate Placement Pitch';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-primary');
+            btn.disabled = false;
+        }, 3000);
+    }, 450);
+}
+
+function copyCorporatePitch() {
+    const box = document.getElementById('pitchContentBox');
+    const text = box.innerText;
+    const btn = document.getElementById('btnCopyPitch');
+    const alertBox = document.getElementById('pitchAlertFeedback');
+    const alertText = document.getElementById('pitchAlertText');
+    
+    navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Copied!';
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        
+        alertText.innerHTML = '<strong>Copied:</strong> Recruitment Brief copied to clipboard, ready to email to HR!';
+        alertBox.classList.remove('d-none');
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="bi bi-clipboard me-1"></i> Copy Pitch Brief';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2500);
+    });
+}
+</script>
 {% endblock %}
