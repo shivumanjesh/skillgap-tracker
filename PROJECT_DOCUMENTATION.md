@@ -228,7 +228,32 @@ $$\text{Readiness Index \%} = 100 - \text{Skill Gap \%}$$
 - **Manual Mentor Pairing**: Select mentor from dropdown and assign multiple students simultaneously.
 - **Bulk CSV Pairing**: Upload spreadsheet files (`mentor_email,student_email`) to pair hundreds of students in one click.
 - **Pairing Management**: Search and unpair/reassign mentor-student pairings.
-- **System User Directory**: Filter and inspect registered accounts across students, faculty, TPOs, and admins.
+### 8.5 AI Placement Intelligence Engine & Multi-Persona Suite
+
+The platform incorporates a multi-persona intelligence engine (`app/ai_copilot.py`) accessible across both the Flask web application and the Streamlit cloud portal:
+
+1. **Student Autonomous Career Accelerator**:
+   - **30-Day Sprint Roadmap**: Week-by-week prioritized recovery blueprint mapping the student's highest deficit skills to actionable exercises.
+   - **Technical Interview Flashcards & Simulator**: 5 targeted technical interview questions with benchmark answers and evaluation criteria tailored to their chosen career track.
+   - **STAR Resume Impact Generator**: Generates Situation-Task-Action-Result bullet points showcasing their mastered competencies.
+   - **SMART Milestone Rubrics & Competency Radar**: Diagnostic 3-tier milestone rubrics with interactive polar radar plots benchmarked against 100% industry readiness.
+
+2. **Faculty Mentor One-Click AI Feedback Drafter**:
+   - **Automated Diagnosis**: Reads mentee readiness score, target role, and top skill deficits in real time.
+   - **14-Day Milestone Recovery Roadmap**: Auto-generates structured, encouraging feedback complete with 14-day recovery goals (syntax drills, hands-on lab, mock interview).
+   - **Automated At-Risk Detection**: Pre-checks the At-Risk alert switch if critical skill deficits exceed 50%.
+
+3. **TPO Corporate Tier Matchmaker & Recruiter Pitch**:
+   - **Predictive Corporate Tier Segmentation**:
+     - *Tier-1 Product Companies (15+ LPA)*: Readiness $\ge 80\%$.
+     - *Tier-2 High-Growth Scaleups (8–15 LPA)*: Readiness $60\% - 79\%$.
+     - *Tier-3 IT & Enterprise Services (4–8 LPA)*: Readiness $40\% - 59\%$.
+     - *Remedial Cohort*: Readiness $< 40\%$.
+   - **Institutional AI Recruiter Pitch**: 1-click generation of corporate pitch briefs highlighting batch strengths, verified competencies, and NAAC/NBA criteria compliance.
+
+4. **College Administrator (Dean / HOD) AI Curriculum Gap Detector**:
+   - **Systemic Syllabus Gap Analysis**: Pinpoints aggregate curriculum deficiencies across engineering departments and tracks.
+   - **Academic Council Action Plan**: Actionable recommendations for Board of Studies meetings, including modern electives, Faculty Development Programs (FDP), and capstone lab modernization.
 
 ---
 
