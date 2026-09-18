@@ -5,6 +5,7 @@ from io import StringIO
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from app.ai_copilot import generate_ai_curriculum_analysis
 from app.auth.routes import role_required
 from app.models import Assessment, MentorAssignment, StudentProfile, User, db
 
@@ -318,11 +319,14 @@ def trends():
         "total_assignments": MentorAssignment.query.count(),
     }
 
+    ai_curriculum_plan = generate_ai_curriculum_analysis(role_rows)
+
     return render_template(
         "admin/trends.html",
         student_overview=student_overview,
         role_rows=role_rows,
         skill_rows=skill_rows,
+        ai_curriculum_plan=ai_curriculum_plan,
     )
 
 

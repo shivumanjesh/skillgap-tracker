@@ -15,6 +15,7 @@ from flask import (
 from flask_login import current_user, login_required
 from sqlalchemy import func
 
+from app.ai_copilot import generate_ai_recruiter_pitch
 from app.auth.routes import role_required
 from app.models import (
     Assessment,
@@ -139,6 +140,43 @@ def dashboard():
             if search_query in r["student"].name.lower() or search_query in r["student"].email.lower()
         ]
 
+    # Predictive Corporate Tier Segmentation
+    # Tier-1: Readiness >= 80%
+    # Tier-2: Readiness 60% - 79%
+    # Tier-3: Readiness 40% - 59%
+    # Remedial: Readiness < 40%
+    tier_counts = {"tier1": 0, "tier2": 0, "tier3": 0, "remedial": 0}
+    for r in all_rows:
+        readiness = round(100 - (r["gap_percentage"] or 100), 1)
+        r["readiness"] = readiness
+        if readiness >= 80:
+            r["hiring_tier"] = "Tier-1 Product (15+ LPA)"
+            r["hiring_tier_short"] = "Tier 1"
+            r["hiring_tier_badge"] = "success"
+            tier_counts["tier1"] += 1
+        elif readiness >= 60:
+            r["hiring_tier"] = "Tier-2 Scaleup (8–15 LPA)"
+            r["hiring_tier_short"] = "Tier 2"
+            r["hiring_tier_badge"] = "primary"
+            tier_counts["tier2"] += 1
+        elif readiness >= 40:
+            r["hiring_tier"] = "Tier-3 Services (4–8 LPA)"
+            r["hiring_tier_short"] = "Tier 3"
+            r["hiring_tier_badge"] = "warning"
+            tier_counts["tier3"] += 1
+        else:
+            r["hiring_tier"] = "Remedial Intervention (<40%)"
+            r["hiring_tier_short"] = "Remedial"
+            r["hiring_tier_badge"] = "danger"
+            tier_counts["remedial"] += 1
+
+    selected_tier = request.args.get("tier", "").strip()
+    if selected_tier:
+        filtered_rows = [
+            r for r in filtered_rows
+            if r.get("hiring_tier_short") == selected_tier or r.get("hiring_tier") == selected_tier
+        ]
+
     # Analytics computation
     total_students = len(all_rows)
     with_target_role = sum(1 for r in all_rows if r["target_job_role"] is not None)
@@ -193,6 +231,14 @@ def dashboard():
         "role_count": len(job_roles),
     }
 
+    ai_recruiter_pitch = generate_ai_recruiter_pitch(
+        total_students=total_students,
+        ready_count=ready_count,
+        avg_gap=average_gap or 0,
+        branch_data=branch_stats,
+        tier_counts=tier_counts,
+    )
+
     return render_template(
         "tpo/dashboard.html",
         student_rows=filtered_rows,
@@ -204,8 +250,11 @@ def dashboard():
         available_branches=available_branches,
         selected_role_id=selected_role_id,
         selected_branch=selected_branch,
+        selected_tier=selected_tier,
         status_filter=status_filter,
         search_query=search_query,
+        tier_counts=tier_counts,
+        ai_recruiter_pitch=ai_recruiter_pitch,
     )
 
 

@@ -90,6 +90,117 @@
     </div>
 </div>
 
+<!-- Predictive Corporate Hiring Tier Matchmaker -->
+<div class="card-modern mb-4 shadow-sm" style="border-top: 4px solid #0284c7;">
+    <div class="card-header-modern d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2" style="background: #f0f9ff; border-bottom: 1px solid #e0f2fe;">
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge" style="background-color: #0284c7; color: #ffffff; font-size: 0.8rem; padding: 0.4rem 0.75rem; border-radius: 9999px;">
+                <i class="bi bi-briefcase-fill me-1"></i> Corporate Intelligence
+            </span>
+            <h2 class="card-header-title mb-0" style="color: #0369a1; font-weight: 800;">Predictive Corporate Hiring Tier Matchmaker</h2>
+        </div>
+        <span class="badge bg-white border px-3 py-1" style="color: #0284c7; font-weight: 600; border-color: #bae6fd !important;">
+            Industry Employability Segmentation
+        </span>
+    </div>
+    <div class="p-4">
+        <div class="row g-3">
+            <!-- Tier 1 -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm p-3" style="background: #f0fdf4; border-left: 4px solid #16a34a !important; border-radius: 12px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-success text-white fw-bold">15+ LPA CTC</span>
+                        <i class="bi bi-trophy-fill text-success fs-5"></i>
+                    </div>
+                    <h6 class="fw-bold text-slate-900 mb-1">Tier-1 Product Companies</h6>
+                    <div class="display-6 fw-bold text-success mb-1">{{ tier_counts.tier1 }}</div>
+                    <div class="small text-secondary mb-2">
+                        Readiness &ge; 80% &bull; Advanced systems architecture &amp; high-scale design
+                    </div>
+                    <a href="{{ url_for('tpo.dashboard', tier='Tier 1') }}" class="btn btn-outline-success btn-sm w-100 fw-semibold">
+                        Filter Candidates ({{ tier_counts.tier1 }})
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tier 2 -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm p-3" style="background: #eff6ff; border-left: 4px solid #2563eb !important; border-radius: 12px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-primary text-white fw-bold">8–15 LPA CTC</span>
+                        <i class="bi bi-rocket-takeoff-fill text-primary fs-5"></i>
+                    </div>
+                    <h6 class="fw-bold text-slate-900 mb-1">Tier-2 High-Growth Scaleups</h6>
+                    <div class="display-6 fw-bold text-primary mb-1">{{ tier_counts.tier2 }}</div>
+                    <div class="small text-secondary mb-2">
+                        Readiness 60%–79% &bull; Independent full-stack &amp; workflow implementation
+                    </div>
+                    <a href="{{ url_for('tpo.dashboard', tier='Tier 2') }}" class="btn btn-outline-primary btn-sm w-100 fw-semibold">
+                        Filter Candidates ({{ tier_counts.tier2 }})
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tier 3 -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm p-3" style="background: #fffbeb; border-left: 4px solid #d97706 !important; border-radius: 12px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-warning text-dark fw-bold">4–8 LPA CTC</span>
+                        <i class="bi bi-building text-warning-emphasis fs-5"></i>
+                    </div>
+                    <h6 class="fw-bold text-slate-900 mb-1">Tier-3 IT &amp; Enterprise Services</h6>
+                    <div class="display-6 fw-bold text-warning-emphasis mb-1">{{ tier_counts.tier3 }}</div>
+                    <div class="small text-secondary mb-2">
+                        Readiness 40%–59% &bull; Foundational coding &amp; database competence
+                    </div>
+                    <a href="{{ url_for('tpo.dashboard', tier='Tier 3') }}" class="btn btn-outline-warning btn-sm w-100 fw-semibold text-dark">
+                        Filter Candidates ({{ tier_counts.tier3 }})
+                    </a>
+                </div>
+            </div>
+
+            <!-- Remedial -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm p-3" style="background: #fff1f2; border-left: 4px solid #e11d48 !important; border-radius: 12px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-danger text-white fw-bold">Academic Focus</span>
+                        <i class="bi bi-shield-exclamation text-danger fs-5"></i>
+                    </div>
+                    <h6 class="fw-bold text-slate-900 mb-1">Remedial Intervention Cohort</h6>
+                    <div class="display-6 fw-bold text-danger mb-1">{{ tier_counts.remedial }}</div>
+                    <div class="small text-secondary mb-2">
+                        Readiness &lt; 40% &bull; Enrolled in guided remedial coding labs
+                    </div>
+                    <a href="{{ url_for('tpo.dashboard', tier='Remedial') }}" class="btn btn-outline-danger btn-sm w-100 fw-semibold">
+                        Filter Candidates ({{ tier_counts.remedial }})
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Recruiter Pitch & Executive Brief Generator -->
+        <div class="mt-4 pt-3 border-top">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-purple text-white px-2 py-1 rounded-pill" style="background-color: #8b5cf6;">
+                        <i class="bi bi-robot"></i> AI Recruiter Brief
+                    </span>
+                    <h5 class="fw-bold text-slate-900 mb-0">Institutional Recruitment Pitch Generator</h5>
+                </div>
+                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#recruiterPitchCollapse">
+                    <i class="bi bi-chevron-down me-1"></i> Toggle Executive Brief
+                </button>
+            </div>
+            <p class="text-secondary small mb-3">
+                One-click formal recruitment brief generated for visiting corporate HR teams, emphasizing verified empirical competencies and NBA/NAAC compliance.
+            </p>
+            <div class="collapse show" id="recruiterPitchCollapse">
+                <div class="p-3 bg-light rounded-3 border" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #1e293b;">{{ ai_recruiter_pitch }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4 mb-4">
     <!-- Branch-wise Median Gap Table -->
     <div class="col-lg-6">
@@ -263,11 +374,12 @@
                 <table class="table table-modern align-middle mb-0">
                     <thead>
                         <tr>
-                            <th scope="col" style="width: 25%;">Student</th>
-                            <th scope="col" style="width: 22%;">Email</th>
-                            <th scope="col" style="width: 22%;">Target Job Role</th>
-                            <th scope="col" style="width: 18%;">Skill Gap</th>
-                            <th scope="col" style="width: 13%;" class="text-end">Status</th>
+                            <th scope="col" style="width: 23%;">Student</th>
+                            <th scope="col" style="width: 20%;">Email</th>
+                            <th scope="col" style="width: 20%;">Target Job Role</th>
+                            <th scope="col" style="width: 15%;">Hiring Tier</th>
+                            <th scope="col" style="width: 12%;">Skill Gap</th>
+                            <th scope="col" style="width: 10%;" class="text-end">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -288,14 +400,23 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                    {% if row.hiring_tier_badge %}
+                                        <span class="badge bg-{{ row.hiring_tier_badge }}-subtle text-{{ row.hiring_tier_badge }} border border-{{ row.hiring_tier_badge }}-subtle">
+                                            {{ row.hiring_tier_short }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted small">&mdash;</span>
+                                    {% endif %}
+                                </td>
+                                <td>
                                     {% if row.gap_percentage is not none %}
                                         <div class="fw-semibold {% if row.gap_percentage <= 30 %}text-success{% elif row.gap_percentage <= 70 %}text-warning-emphasis{% else %}text-danger{% endif %}">
-                                            Skill Gap: {{ "%g"|format(row.gap_percentage) }}%
+                                            {{ "%g"|format(row.gap_percentage) }}%
                                         </div>
                                     {% elif row.target_job_role %}
-                                        <span class="text-muted small">Undefined (no required skills)</span>
+                                        <span class="text-muted small">Undefined</span>
                                     {% else %}
-                                        <span class="text-muted small">Undefined (no target role)</span>
+                                        <span class="text-muted small">Undefined</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-end">

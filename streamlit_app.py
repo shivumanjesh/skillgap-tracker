@@ -679,48 +679,67 @@ def generate_resume_bullets(target_role, skills, effective_level):
 
 
 def generate_ai_mentor_feedback(mentee_name, branch, target_role, readiness_score, gap_percentage, deficit_skills):
-    """Generate structured, empathetic faculty mentor guidance."""
-    lowest_skills = [s[0] for s in deficit_skills[:2]] if deficit_skills else ["core competencies"]
-    skills_text = " and ".join(lowest_skills)
+    """Generate structured, empathetic faculty mentor guidance with a 14-day milestone recovery roadmap."""
+    lowest_skills = [s[0] for s in deficit_skills[:3]] if deficit_skills else ["Core Engineering Competencies"]
+    skills_text = ", ".join(lowest_skills)
+    primary_deficit = lowest_skills[0]
 
-    if readiness_score >= 75:
-        tone = "Student is performing exceptionally well and demonstrating placement-grade proficiency."
-        advice = f"Encouraged {mentee_name} to participate in national hackathons and start applying for Tier-1 engineering recruitment drives. Recommended exploring open-source contributions to further strengthen industry portfolio."
-    elif readiness_score >= 45:
-        tone = f"Student has established satisfactory foundations but requires targeted practice in {skills_text}."
-        advice = f"Reviewed academic trajectory. Advised {mentee_name} to build a focused mini-project addressing {skills_text} over the next 14 days. Scheduled a technical check-in next week to evaluate hands-on progress."
+    if readiness_score >= 80:
+        tone = f"Commendable progress! {mentee_name} demonstrates Tier-1 placement readiness ({readiness_score}% score). Focus on high-scale systems architecture and mock interview leadership."
+        action_plan = """1. Day 1–5: Solve 10 hard-tier algorithmic concurrency problems.
+2. Day 6–10: Mentor junior peers and conduct 1 mock technical interview.
+3. Day 11–14: Polish GitHub portfolio repository for Tier-1 corporate drives."""
+    elif readiness_score >= 60:
+        tone = f"Solid progress ({readiness_score}% ready). Key focus required on mastering {skills_text} to clear Tier-2 product engineering interview technical bars."
+        action_plan = f"""1. Day 1–5: Intensive hands-on syntax and API practice in {primary_deficit}.
+2. Day 6–10: Build and push a working mini-project with unit tests to GitHub.
+3. Day 11–14: Schedule a 15-minute code walkthrough with faculty mentor to verify proficiency."""
+    elif readiness_score >= 40:
+        tone = f"Developing competency ({readiness_score}% ready). Significant deficit ({gap_percentage}%) detected across {skills_text}."
+        action_plan = f"""1. Day 1–5: Review core theory and complete fundamental coding lab sheets in {primary_deficit}.
+2. Day 6–10: Re-implement 3 reference sample applications with proper exception handling.
+3. Day 11–14: Attend department guided mentoring lab; retake SMART diagnostic."""
     else:
-        tone = f"Student is experiencing high skill deficit ({gap_percentage}%) and is currently flagged for placement intervention."
-        advice = f"Conducted 1-on-1 counseling session. Outlined a 3-phase remediation plan prioritizing {skills_text}. Requested student attend remedial lab hours and complete fundamental exercises before next review cycle."
+        tone = f"🚩 Critical Academic Intervention: Readiness is {readiness_score}% with a {gap_percentage}% deficit across core competencies ({skills_text}). Remedial action mandatory."
+        action_plan = f"""1. Day 1–5: Daily 1-hour mandatory remedial lab attendance for {primary_deficit}.
+2. Day 6–10: Pair programming with assigned student teaching assistant on core tasks.
+3. Day 11–14: Mandatory 1-on-1 counseling check-in with faculty mentor and TPO coordinator."""
 
-    return f"Periodic Mentorship Review for {mentee_name} ({branch} - Target: {target_role}):\n\nReadiness Index: {readiness_score}% (Skill Gap: {gap_percentage}%).\n{tone}\n\nAction Plan & Recommendation:\n{advice}"
+    return f"""Periodic Mentorship Advisory Note for {mentee_name} ({branch})
+Target Track: {target_role} | Readiness Benchmark: {readiness_score}% (Deficit: {gap_percentage}%)
+
+Diagnostic Assessment:
+{tone}
+
+Recommended 14-Day Milestone Recovery Roadmap:
+{action_plan}
+"""
 
 
 def generate_ai_recruiter_pitch(total_students, ready_count, avg_gap, branch_data, tier_counts):
     """Generate a high-converting, professional placement pitch for corporate recruiters."""
     ready_pct = round((ready_count / total_students * 100), 1) if total_students else 0
-    tier1 = tier_counts.get("Tier 1", 0)
-    tier2 = tier_counts.get("Tier 2", 0)
-    top_branches = ", ".join(branch_data["branch"].head(3).tolist()) if not branch_data.empty else "Computer Science, Information Science & ECE"
+    t1 = tier_counts.get("Tier 1", tier_counts.get("tier1", 0))
+    t2 = tier_counts.get("Tier 2", tier_counts.get("tier2", 0))
+    t3 = tier_counts.get("Tier 3", tier_counts.get("tier3", 0))
+    t_rem = tier_counts.get("Intervention", tier_counts.get("remedial", 0))
 
-    return f"""### 🎓 Institutional Placement & Employability Executive Brief
-**Prepared by:** Training & Placement Office (TPO) | **Placement Cycle:** 2026–2027
+    return f"""### 🏢 Executive Placement Brief for Visiting Corporate Recruiters
+**Institutional Batch Overview:** {total_students} Graduating Engineers Assessed
 
 ---
 
-#### 🌟 **Cohort Employability Highlights**
-- **Total Placement Aspirants:** {total_students} engineering candidates across {top_branches}.
-- **Campus Placement Readiness Rate:** **{ready_pct}%** of candidates meet or exceed industry benchmark thresholds (<= 30% gap).
-- **Average Cohort Skill Deficit:** **{avg_gap}%** (measured through continuous verified faculty assessment).
+#### 🌟 **Recruitment Readiness Highlights:**
+- **Tier-1 Product-Ready Cohort (15+ LPA):** **{t1} students** ({round(t1/total_students*100, 1) if total_students else 0}%) verified in advanced systems architecture, concurrency, and high-scale design (Readiness >= 80%).
+- **Tier-2 Scaleup-Ready Cohort (8–15 LPA):** **{t2} students** ({round(t2/total_students*100, 1) if total_students else 0}%) possessing independent full-stack implementation proficiency (Readiness 60%–79%).
+- **Tier-3 Services Cohort (4–8 LPA):** **{t3} students** ({round(t3/total_students*100, 1) if total_students else 0}%) with verified foundational programming and database competence (Readiness 40%–59%).
+- **Remedial Intervention Cohort:** **{t_rem} students** enrolled in targeted department remedial coding labs (Readiness < 40%).
+- **Overall Placement-Ready Ratio:** **{ready_pct}%** of candidates meet rigorous corporate thresholds with average deficit of only **{avg_gap}%**.
 
-#### 🏆 **Talent Pool Segmentation (Corporate Hiring Tiers)**
-- **Tier-1 Product & Tech Champions (15+ LPA Ready):** **{tier1} candidates** possessing verified mastery across Full-Stack, Distributed Cloud, and AI Systems.
-- **Tier-2 High-Growth Scaleup Talent (8–15 LPA Ready):** **{tier2} candidates** with production project portfolios and full SDLC experience.
-
-#### 🛡️ **Institutional Quality & Accreditation Guarantee (NBA / NAAC Compliance)**
-Unlike standard candidate pools evaluated purely on cumulative GPA, our students undergo **continuous dual-source competency tracking** verified by senior engineering faculty. Every skill rating reflects hands-on project artifacts, version-controlled GitHub codebases, and rigorous algorithmic evaluation.
-
-*Available immediately for on-campus drives, virtual hackathons, and pre-placement hiring interviews.*
+#### 🎯 **Why Recruit From Our Campus:**
+1. **Empirical Rubric Verification:** Every candidate's proficiency is cross-validated through objective behavioral milestones and faculty mentor code reviews (zero self-reported fluff).
+2. **Modern Technology Stacks:** Core competencies focus on production-grade Python, React, PostgreSQL, Docker, and Cloud architectures.
+3. **Outcome-Based Education (OBE):** Fully compliant with NBA/NAAC Program Outcomes (POs) and continuous curriculum alignment.
 """
 
 
@@ -1507,9 +1526,9 @@ def render_tpo_view():
             # Assign corporate tier
             if r_score >= 80:
                 tier_data["Tier 1"].append(s.name)
-            elif r_score >= 65:
+            elif r_score >= 60:
                 tier_data["Tier 2"].append(s.name)
-            elif r_score >= 50:
+            elif r_score >= 40:
                 tier_data["Tier 3"].append(s.name)
             else:
                 tier_data["Intervention"].append(s.name)
@@ -1530,20 +1549,65 @@ def render_tpo_view():
 
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Enrolled Students", len(students))
-    m2.metric("Placement Ready (Gap ≤ 30%)", ready_count, delta=f"{(ready_count/len(students)*100):.1f}% Cohort Ready" if students else "0%")
+    m2.metric("Placement Ready (Gap <= 30%)", ready_count, delta=f"{(ready_count/len(students)*100):.1f}% Cohort Ready" if students else "0%")
     m3.metric("Average Skill Gap", f"{avg_gap}%", delta=f"-{avg_gap}%", delta_color="inverse")
     m4.metric("At-Risk Interventions", len(at_risk_students), delta_color="inverse")
 
     tabs = st.tabs([
-        "📊 Departmental Benchmark",
         "🏆 Corporate Hiring Tiers & AI Recruiter Pitch",
+        "📊 Departmental Benchmark",
         "🚩 Early Warning (At-Risk)",
         "📋 All Student Roster",
         "📥 Data Exports",
     ])
 
-    # TAB 1: BENCHMARK
+    # TAB 0: CORPORATE TIERS & AI PITCH
     with tabs[0]:
+        st.markdown(
+            """
+            <div class="ai-box">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="ai-badge">Predictive Corporate Intelligence</span>
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">Corporate Hiring Tier Forecasting & AI Pitch</h3>
+                </div>
+                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
+                    Empirical candidate tiering based on verified industry skill benchmarks and 1-click recruiter pitch generation.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        tc1, tc2, tc3, tc4 = st.columns(4)
+        tc1.metric("🥇 Tier-1 Product (15+ LPA)", len(tier_data["Tier 1"]), delta="Readiness >= 80%")
+        tc2.metric("🥈 Tier-2 Scaleup (8-15 LPA)", len(tier_data["Tier 2"]), delta="Readiness 60%-79%")
+        tc3.metric("🥉 Tier-3 Services (4-8 LPA)", len(tier_data["Tier 3"]), delta="Readiness 40%-59%")
+        tc4.metric("⚠️ Remedial Intervention", len(tier_data["Intervention"]), delta="Readiness < 40%", delta_color="inverse")
+
+        st.divider()
+        st.subheader("✨ AI Recruiter Executive Brief & Corporate Pitch Generator")
+        st.caption("Generate a high-converting, professional placement brief ready to send to visiting corporate recruiters and accreditation bodies (NBA/NAAC):")
+
+        df_branches = pd.DataFrame(student_rows)
+        branch_stats = df_branches.groupby("branch").size().reset_index(name="count") if not df_branches.empty else pd.DataFrame()
+
+        tier_counts = {
+            "Tier 1": len(tier_data["Tier 1"]),
+            "Tier 2": len(tier_data["Tier 2"]),
+            "Tier 3": len(tier_data["Tier 3"]),
+            "Intervention": len(tier_data["Intervention"]),
+        }
+
+        if st.button("✨ Generate Executive Recruiter Pitch Brief", type="primary", use_container_width=True):
+            st.session_state["recruiter_pitch"] = generate_ai_recruiter_pitch(
+                len(students), ready_count, avg_gap, branch_stats, tier_counts
+            )
+
+        if "recruiter_pitch" in st.session_state:
+            st.markdown(st.session_state["recruiter_pitch"])
+
+    # TAB 1: BENCHMARK
+    with tabs[1]:
         df_students = pd.DataFrame(student_rows)
         if not df_students.empty:
             branch_summary = df_students.groupby("branch").agg(
@@ -1570,50 +1634,6 @@ def render_tpo_view():
             with c2:
                 st.subheader("Summary Table")
                 st.dataframe(branch_summary, use_container_width=True, hide_index=True)
-
-    # TAB 2: CORPORATE TIERS & AI PITCH
-    with tabs[1]:
-        st.markdown(
-            """
-            <div class="ai-box">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span class="ai-badge">Predictive Intelligence</span>
-                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #581c87;">Corporate Hiring Tier Forecasting</h3>
-                </div>
-                <p style="margin: 0.35rem 0 0 0; color: #7e22ce; font-size: 0.95rem;">
-                    Automatic talent segmentation based on verified industry competency thresholds.
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        tc1, tc2, tc3, tc4 = st.columns(4)
-        tc1.metric("🥇 Tier-1 Product (15+ LPA)", len(tier_data["Tier 1"]), delta="High Value Talent")
-        tc2.metric("🥈 Tier-2 Scaleup (8-15 LPA)", len(tier_data["Tier 2"]), delta="Full SDLC Ready")
-        tc3.metric("🥉 Tier-3 Services (4-8 LPA)", len(tier_data["Tier 3"]), delta="Foundation Ready")
-        tc4.metric("⚠️ Remedial Intervention", len(tier_data["Intervention"]), delta_color="inverse")
-
-        st.divider()
-        st.subheader("✨ AI Recruiter Brief & Corporate Pitch Generator")
-        st.caption("Generate a high-converting, professional placement brief ready to send to visiting corporate recruiters and accreditation bodies (NBA/NAAC):")
-
-        df_branches = pd.DataFrame(student_rows)
-        branch_stats = df_branches.groupby("branch").size().reset_index(name="count") if not df_branches.empty else pd.DataFrame()
-
-        tier_counts = {
-            "Tier 1": len(tier_data["Tier 1"]),
-            "Tier 2": len(tier_data["Tier 2"]),
-            "Tier 3": len(tier_data["Tier 3"]),
-        }
-
-        if st.button("Generate Executive Recruiter Brief", type="primary"):
-            st.session_state["recruiter_pitch"] = generate_ai_recruiter_pitch(
-                len(students), ready_count, avg_gap, branch_stats, tier_counts
-            )
-
-        if "recruiter_pitch" in st.session_state:
-            st.markdown(st.session_state["recruiter_pitch"])
 
     # TAB 3: AT RISK
     with tabs[2]:
@@ -1674,8 +1694,8 @@ def render_admin_view():
     )
 
     tabs = st.tabs([
-        "📈 Platform Macro Trends",
         "🧠 AI Curriculum Gap Analytics",
+        "📈 Platform Macro Trends",
         "🤝 Mentor-Student Pairing",
         "👥 User Directory",
     ])
@@ -1693,18 +1713,6 @@ def render_admin_view():
         df_roles = pd.DataFrame(role_gaps)
 
     with tabs[0]:
-        st.subheader("Platform Analytics & Macro Readiness")
-        fig = px.bar(
-            df_roles,
-            x="Job Role",
-            y="Average Gap",
-            color="Average Gap",
-            color_continuous_scale="Inferno",
-            labels={"Average Gap": "Average Deficit (%)"},
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    with tabs[1]:
         st.markdown(
             """
             <div class="ai-box">
@@ -1721,6 +1729,18 @@ def render_admin_view():
         )
 
         st.markdown(generate_ai_curriculum_analysis(df_roles))
+
+    with tabs[1]:
+        st.subheader("Platform Analytics & Macro Readiness")
+        fig = px.bar(
+            df_roles,
+            x="Job Role",
+            y="Average Gap",
+            color="Average Gap",
+            color_continuous_scale="Inferno",
+            labels={"Average Gap": "Average Deficit (%)"},
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
     with tabs[2]:
         st.subheader("Mentor Assignment Management")

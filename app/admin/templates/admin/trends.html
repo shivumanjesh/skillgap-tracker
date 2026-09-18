@@ -69,6 +69,59 @@
     </div>
 </div>
 
+<!-- AI Institutional Curriculum Gap Detector & Academic Action Plan -->
+<div class="card-modern mb-4 shadow-sm" style="border-top: 4px solid #7e22ce; background: #ffffff;">
+    <div class="card-header-modern d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2" style="background: #faf5ff; border-bottom: 1px solid #f3e8ff;">
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge" style="background-color: #7e22ce; color: #ffffff; font-size: 0.8rem; padding: 0.4rem 0.75rem; border-radius: 9999px;">
+                <i class="bi bi-mortarboard-fill me-1"></i> Academic Council Intelligence
+            </span>
+            <h2 class="card-header-title mb-0" style="color: #581c87; font-weight: 800;">AI Institutional Curriculum Gap Detector</h2>
+        </div>
+        <span class="badge bg-white border px-3 py-1" style="color: #7e22ce; font-weight: 600; border-color: #e9d5ff !important;">
+            Board of Studies &amp; Accreditation Action Plan
+        </span>
+    </div>
+    <div class="p-4">
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 border h-100" style="background: #fdf4ff; border-left: 4px solid #c026d3 !important;">
+                    <h6 class="fw-bold text-slate-900 mb-1"><i class="bi bi-book me-1 text-purple"></i> Value-Added Elective Courses</h6>
+                    <p class="small text-secondary mb-0">
+                        Recommend 2-credit intensive electives on <em>Cloud-Native Systems &amp; Microservices Engineering</em> to bridge applied software architecture gaps.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 border h-100" style="background: #eff6ff; border-left: 4px solid #2563eb !important;">
+                    <h6 class="fw-bold text-slate-900 mb-1"><i class="bi bi-person-video3 me-1 text-primary"></i> Faculty Development Program (FDP)</h6>
+                    <p class="small text-secondary mb-0">
+                        Conduct semester industry immersion FDPs for CSE &amp; IT faculty on <em>Production Full-Stack Patterns</em> and containerization workflows.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 border h-100" style="background: #f0fdf4; border-left: 4px solid #16a34a !important;">
+                    <h6 class="fw-bold text-slate-900 mb-1"><i class="bi bi-laptop me-1 text-success"></i> Capstone Lab Syllabus Revamp</h6>
+                    <p class="small text-secondary mb-0">
+                        Mandate that 30% of laboratory internal assessment evaluates public GitHub repositories, Dockerized runs, and automated unit test coverage.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold text-slate-900 mb-0">Full Academic Council Executive Audit &amp; OBE Accreditation Brief:</h6>
+            <button class="btn btn-sm btn-outline-purple" type="button" data-bs-toggle="collapse" data-bs-target="#curriculumPlanCollapse" style="color: #7e22ce; border-color: #d8b4fe;">
+                <i class="bi bi-chevron-down me-1"></i> Toggle Audit Document
+            </button>
+        </div>
+        <div class="collapse show" id="curriculumPlanCollapse">
+            <div class="p-3 rounded-3 border bg-light" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #1e293b;">{{ ai_curriculum_plan }}</div>
+        </div>
+    </div>
+</div>
+
 <!-- Chart Section -->
 {% if role_rows or skill_rows %}
     <div class="row g-4 mb-4">

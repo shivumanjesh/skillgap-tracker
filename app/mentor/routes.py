@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from app.ai_copilot import generate_ai_mentor_feedback
 from app.auth.routes import role_required
 from app.models import (
     Assessment,
@@ -219,6 +220,24 @@ def mentee_note(student_id):
     latest_note = notes[-1] if notes else None
     current_at_risk = latest_note.at_risk if latest_note else False
 
+    # AI Mentor Guidance Note Drafter
+    priority_order = {"not_started": 1, "learning": 2, "comfortable": 3}
+    deficit_skills = [
+        (s.name, effective_level_by_skill.get(s.id, "not_started"), priority_order.get(effective_level_by_skill.get(s.id, "not_started"), 9))
+        for s in skills if effective_level_by_skill.get(s.id, "not_started") != "confident"
+    ]
+    deficit_skills.sort(key=lambda x: x[2])
+    readiness_score = round(100 - (gap_percentage or 0), 1)
+
+    ai_suggested_feedback = generate_ai_mentor_feedback(
+        mentee_name=student.name,
+        branch=profile.branch if profile else "Engineering",
+        target_role=target_job_role.name if target_job_role else "Target Role",
+        readiness_score=readiness_score,
+        gap_percentage=gap_percentage or 0,
+        deficit_skills=deficit_skills,
+    )
+
     return render_template(
         "mentor/mentee_note.html",
         student=student,
@@ -229,6 +248,8 @@ def mentee_note(student_id):
         self_level_by_skill=self_level_by_skill,
         mentor_level_by_skill=mentor_level_by_skill,
         gap_percentage=gap_percentage,
+        readiness_score=readiness_score,
         notes=notes,
         current_at_risk=current_at_risk,
+        ai_suggested_feedback=ai_suggested_feedback,
     )

@@ -80,19 +80,36 @@
             </h2>
             
             <form method="post" action="{{ url_for('mentor.mentee_note', student_id=student.id) }}">
+                <!-- One-Click AI Feedback Drafter -->
+                <div class="p-3 mb-3 rounded-3" style="background: #faf5ff; border: 1px solid #e9d5ff;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge" style="background: #7e22ce; color: #fff; font-size: 0.75rem;">
+                            <i class="bi bi-robot me-1"></i> AI Assistant
+                        </span>
+                        <span class="small fw-semibold" style="color: #6b21a8;">14-Day Recovery Roadmap</span>
+                    </div>
+                    <p class="small text-secondary mb-2">
+                        Synthesizes readiness score ({{ readiness_score }}%) and deficit competencies into an encouraging, structured guidance note.
+                    </p>
+                    <button type="button" class="btn btn-sm w-100 fw-bold d-flex align-items-center justify-content-center gap-2" id="btnDraftAiNote" style="background: #7e22ce; color: #ffffff; border-radius: 8px;">
+                        <i class="bi bi-stars"></i> ✨ Draft AI Feedback for Mentee
+                    </button>
+                    <textarea id="aiDraftFeedback" style="display:none;">{{ ai_suggested_feedback }}</textarea>
+                </div>
+
                 <div class="mb-3">
-                    <label class="form-label" for="note_text">
+                    <label class="form-label fw-semibold" for="note_text">
                         Mentoring Observations &amp; Action Plan <span class="text-danger">*</span>
                     </label>
-                    <textarea class="form-control" id="note_text" name="note_text" rows="5" 
-                              placeholder="e.g., Reviewed DSA practice problem progress. Advised student to solve 15 tree/graph questions by end of month..." required></textarea>
+                    <textarea class="form-control" id="note_text" name="note_text" rows="7" 
+                              placeholder="Click 'Draft AI Feedback for Mentee' above or type your personalized guidance here..." required></textarea>
                     <div class="form-text small text-secondary">
                         Logged notes are visible to the student on their dashboard and documented in historical records.
                     </div>
                 </div>
 
                 <div class="form-check form-switch p-3 bg-light rounded-3 border mb-4">
-                    <input class="form-check-input ms-0 me-3" id="at_risk" name="at_risk" type="checkbox" {% if current_at_risk %}checked{% endif %}>
+                    <input class="form-check-input ms-0 me-3" id="at_risk" name="at_risk" type="checkbox" {% if current_at_risk or (gap_percentage and gap_percentage > 50) %}checked{% endif %}>
                     <label class="form-check-label fw-semibold text-slate-800" for="at_risk">
                         Flag as At-Risk Student
                     </label>
@@ -105,6 +122,21 @@
                     <i class="bi bi-floppy-fill"></i> Save Mentoring Note
                 </button>
             </form>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    var btn = document.getElementById("btnDraftAiNote");
+                    if (btn) {
+                        btn.addEventListener("click", function() {
+                            var feedback = document.getElementById("aiDraftFeedback").value;
+                            document.getElementById("note_text").value = feedback;
+                            {% if gap_percentage and gap_percentage > 50 %}
+                            document.getElementById("at_risk").checked = true;
+                            {% endif %}
+                        });
+                    }
+                });
+            </script>
         </div>
     </div>
 
