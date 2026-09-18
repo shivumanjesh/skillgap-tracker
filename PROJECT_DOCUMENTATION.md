@@ -98,8 +98,10 @@ flowchart TD
 | **Frontend UI** | Server-Rendered Jinja2 + HTML5 | Maximum accessibility on low-spec college lab PCs without client-side Node.js runtime compilation overhead. |
 | **Design System** | Custom CSS (`custom.css`) + Bootstrap 5.3.3 | Cohesive SaaS theme, glassmorphic headers, responsive utility grid, and micro-interactions. |
 | **Typography & Icons** | Google Fonts (*Inter*) + Bootstrap Icons | Clean, high-legibility modern typographic hierarchy. |
-| **Data Visualization** | Chart.js 4.4 via CDN | Dynamic donut and stacked bar charts for skill breakdowns. |
+| **Data Visualization** | Chart.js 4.4 + Plotly 5.24 | Dynamic donut, polar radar, and stacked bar charts for skill breakdowns. |
 | **Data Export** | Python standard `csv` & `io.StringIO` | RFC 4180-compliant real-time spreadsheet generation. |
+| **AI Intelligence Engine** | Algorithmic Expert System (`app/ai_copilot.py`) | Deterministic, zero-cost, zero-latency synthesis of recovery roadmaps, interview simulations, STAR resume bullets, mentor advice, corporate pitches, and curriculum gap analytics. |
+| **Cloud Portal** | Streamlit Community Cloud (`streamlit_app.py`) | Native cloud dashboard featuring reactive Plotly gauges, radar charts, and instant multi-role demo evaluation. |
 
 ---
 
@@ -193,13 +195,30 @@ $$\text{Readiness Index \%} = 100 - \text{Skill Gap \%}$$
 - **$31\% \le \text{Gap} \le 70\%$**: *Developing Competency* (Standard mid-semester trajectory)
 - **$\text{Gap} > 70\%$**: *Needs Intensive Focus* (Requires mentor review and remedial coursework)
 
+### 7.5 Predictive Corporate Hiring Tier Formulation
+To enable institutional corporate matchmaking, student readiness scores are mapped into 4 predictive corporate compensation tiers:
+$$\text{Corporate Tier} = \begin{cases} 
+\text{Tier-1 Product Companies (15+ LPA)} & \text{if } \text{Readiness Index} \ge 80\% \\
+\text{Tier-2 High-Growth Scaleups (8–15 LPA)} & \text{if } 60\% \le \text{Readiness Index} < 80\% \\
+\text{Tier-3 IT & Enterprise Services (4–8 LPA)} & \text{if } 40\% \le \text{Readiness Index} < 60\% \\
+\text{Remedial Intervention Cohort} & \text{if } \text{Readiness Index} < 40\%
+\end{cases}$$
+
+### 7.6 Deficit Skill Priority Formulation & Roadmap Heuristic
+For students with unmet competencies ($s \in S_R$ where $\text{Effective Level}(s) \neq \text{'confident'}$), the AI engine ranks pending skills by urgent intervention weight $w(\text{level})$:
+$$w(\text{not\_started}) = 1 \quad (\text{Highest Deficit Priority})$$
+$$w(\text{learning}) = 2 \quad (\text{Moderate Deficit Priority})$$
+$$w(\text{comfortable}) = 3 \quad (\text{Refinement Priority})$$
+
+The 30-day sprint roadmap locks Week 1 onto the competency with $\min(w)$, Week 2 onto the top two deficits, and Week 3 onto advanced systems optimization before scheduling faculty mock interview simulations in Week 4.
+
 ---
 
 ## 8. Role-Based Feature Inventory & Walkthrough
 
 ### 8.1 Student Role
 - **Landing & Dashboard**: Real-time KPI cards showing Target Role, Overall Skill Gap %, Confident Competencies count, and Assigned Faculty Mentor.
-- **Donut Chart Breakdown**: Visual competency distribution rendered via Chart.js.
+- **Donut & Radar Breakdown**: Visual competency distribution rendered via Chart.js and Plotly polar spider charts benchmarked against 100% industry targets.
 - **Priority Learning Targets**: Automatically surfaces pending competencies prioritized from Not Started $\to$ Learning.
 - **Academic Profile View**: Edit departmental branch (CSE, ISE, ECE, AIML, etc.) and current academic year (1-4).
 - **Checklist Assessment Form**: Batch or individual self-assessment updates with explanatory proficiency definitions.
@@ -213,9 +232,10 @@ $$\text{Readiness Index \%} = 100 - \text{Skill Gap \%}$$
 
 ### 8.3 Training & Placement Officer (TPO) Role
 - **Placement Cockpit**: High-level institutional metrics: Total Candidates, Profiles Defined, Placement-Ready %, and At-Risk Count.
+- **Predictive Corporate Hiring Tiers**: Real-time segmentation across Tier-1 (15+ LPA), Tier-2 (8–15 LPA), Tier-3 (4–8 LPA), and Remedial Intervention cohorts.
 - **Department Readiness Breakdown**: Auto-computed table showing student counts, median gap score %, and at-risk counts per department branch.
 - **Early-Warning Intervention Card**: Real-time alert feed of all students flagged as at risk, complete with the latest faculty observation note.
-- **Searchable Student Roster**: Filter students by target role, branch, and readiness status, with real-time text search.
+- **Searchable Student Roster**: Filter students by target role, branch, readiness status, and corporate tier with real-time search.
 - **Dual CSV Exports**:
   - `employability_readiness.csv`: Standard institution-wide export (`Student, Email, Target Role, Skill Gap`).
   - `at_risk_students.csv`: Targeted intervention roster (`Student, Email, Branch, Target Role, Skill Gap, Mentor, Latest Review Note`).
@@ -228,32 +248,82 @@ $$\text{Readiness Index \%} = 100 - \text{Skill Gap \%}$$
 - **Manual Mentor Pairing**: Select mentor from dropdown and assign multiple students simultaneously.
 - **Bulk CSV Pairing**: Upload spreadsheet files (`mentor_email,student_email`) to pair hundreds of students in one click.
 - **Pairing Management**: Search and unpair/reassign mentor-student pairings.
-### 8.5 AI Placement Intelligence Engine & Multi-Persona Suite
+- **User Directory**: Central directory of all registered accounts with role-based filtering tabs.
 
-The platform incorporates a multi-persona intelligence engine (`app/ai_copilot.py`) accessible across both the Flask web application and the Streamlit cloud portal:
+---
 
-1. **Student Autonomous Career Accelerator**:
-   - **30-Day Sprint Roadmap**: Week-by-week prioritized recovery blueprint mapping the student's highest deficit skills to actionable exercises.
-   - **Technical Interview Flashcards & Simulator**: 5 targeted technical interview questions with benchmark answers and evaluation criteria tailored to their chosen career track.
-   - **STAR Resume Impact Generator**: Generates Situation-Task-Action-Result bullet points showcasing their mastered competencies.
-   - **SMART Milestone Rubrics & Competency Radar**: Diagnostic 3-tier milestone rubrics with interactive polar radar plots benchmarked against 100% industry readiness.
+### 8.5 AI Placement Intelligence Engine & Multi-Persona Architecture
 
-2. **Faculty Mentor One-Click AI Feedback Drafter**:
-   - **Automated Diagnosis**: Reads mentee readiness score, target role, and top skill deficits in real time.
-   - **14-Day Milestone Recovery Roadmap**: Auto-generates structured, encouraging feedback complete with 14-day recovery goals (syntax drills, hands-on lab, mock interview).
-   - **Automated At-Risk Detection**: Pre-checks the At-Risk alert switch if critical skill deficits exceed 50%.
+The platform incorporates an **Algorithmic Expert Diagnostic & Intelligence Engine** (`app/ai_copilot.py`) unified across both the Flask web application and the Streamlit cloud portal:
 
-3. **TPO Corporate Tier Matchmaker & Recruiter Pitch**:
-   - **Predictive Corporate Tier Segmentation**:
-     - *Tier-1 Product Companies (15+ LPA)*: Readiness $\ge 80\%$.
-     - *Tier-2 High-Growth Scaleups (8–15 LPA)*: Readiness $60\% - 79\%$.
-     - *Tier-3 IT & Enterprise Services (4–8 LPA)*: Readiness $40\% - 59\%$.
-     - *Remedial Cohort*: Readiness $< 40\%$.
-   - **Institutional AI Recruiter Pitch**: 1-click generation of corporate pitch briefs highlighting batch strengths, verified competencies, and NAAC/NBA criteria compliance.
+#### 8.5.1 Student Autonomous Career Acceleration Suite
+1. **30-Day Sprint Roadmap Generator**:
+   - Analyzes real-time deficit competencies using the heuristic formula in Section 7.6.
+   - Generates a 4-week structured sprint blueprint (Week 1: Foundations & Syntax Drills, Week 2: Hands-on Capstone Mini-Project, Week 3: Edge Cases & System Optimization, Week 4: Timed Mock Simulations).
+   - Dynamically adapts: If a student clears all competencies (100% readiness), the roadmap automatically transitions to a Tier-1 Product Company mock interview strategy.
+2. **Technical Interview Simulator & Flashcard Engine**:
+   - Provides 5 curated, rigorous technical interview questions with model answer frameworks tailored to their active track (Full-Stack, AI/ML, Cloud/DevOps).
+   - Outlines evaluation rubrics for interviewers (architectural trade-offs, security considerations, and edge case handling).
+3. **STAR Resume Impact Generator**:
+   - Inspects the student's database records and dynamically constructs Situation-Task-Action-Result bullet points *only* for verified competencies marked `confident` or `comfortable`.
+   - If no skills are yet mastered, provides an honest developmental profile bullet aligned with current coursework.
+4. **SMART Milestone Rubrics & Competency Radar**:
+   - Each skill provides 3 concrete behavioral milestones (Theory & Syntax $\to$ Practical Implementation $\to$ Production Optimization).
+   - Plotly polar spider chart overlays the student's current proficiency polygon directly against the 100% industry benchmark.
 
-4. **College Administrator (Dean / HOD) AI Curriculum Gap Detector**:
-   - **Systemic Syllabus Gap Analysis**: Pinpoints aggregate curriculum deficiencies across engineering departments and tracks.
-   - **Academic Council Action Plan**: Actionable recommendations for Board of Studies meetings, including modern electives, Faculty Development Programs (FDP), and capstone lab modernization.
+#### 8.5.2 Faculty Mentor Persona: One-Click AI Feedback Drafter
+1. **Automated Mentee Diagnosis**: Mentors reviewing a student profile click **"✨ Draft AI Feedback for Mentee"**. The engine reads the mentee's exact readiness score, target role, and top skill deficits in real time.
+2. **Dynamic Tone Adaptation**:
+   - *High Readiness ($\ge 75\%$)*: Commendatory tone advising the mentee to lead peer code reviews and target Tier-1 problem sets.
+   - *Moderate Readiness ($45–74\%$)*: Encouraging tone highlighting steady progress with specific drills on pending skills to clear Tier-2 corporate interview bars.
+   - *Critical Deficit ($< 45\%$)*: Urgent academic advisory recommending immediate enrollment in departmental remedial coding labs.
+3. **14-Day Milestone Recovery Plan**: Integrates concrete 2-week recovery goals (Days 1–4 syntax drills, Days 5–9 working GitHub repo proof-of-work, Days 10–14 faculty office hour walkthrough).
+4. **Automated At-Risk Pre-check**: Automatically pre-selects the **"Flag as At-Risk"** checkbox whenever the student has a critical skill deficit ($> 50\%$).
+
+#### 8.5.3 Placement Officer (TPO): Corporate Tier Matchmaker & Recruiter Pitch
+1. **Predictive Corporate Tier Segmentation Cockpit**:
+   - Categorizes all enrolled candidates into Tier-1 (15+ LPA), Tier-2 (8–15 LPA), Tier-3 (4–8 LPA), and Remedial Intervention cohorts based on Section 7.5.
+   - Displays 4 interactive KPI metric cards with 1-click candidate filtering.
+2. **1-Click AI Recruiter Pitch & Executive Brief**:
+   - Computes batch statistics in real time: Total assessed candidates, Tier distribution percentages, and overall placement-ready ratio.
+   - Composes an institutional recruitment brief ready to send to visiting corporate HR executives.
+   - Formulates compliance statements aligned with **NBA Criterion 2 & 5** (Continuous Improvement) and **NAAC Criteria 1 & 2** (Curricular Aspects & Teaching-Learning Evaluation).
+   - Provides a **1-click Markdown download** button (`institutional_corporate_placement_pitch.md`) and a clipboard copy tool.
+
+#### 8.5.4 College Administrator (Dean / HOD): AI Curriculum Gap Detector
+1. **Institutional Syllabus Deficit Analysis**:
+   - Calculates cross-departmental median and average skill deficits across all career tracks (AI/ML, Full-Stack, DevOps, Cloud).
+   - Dynamically identifies the track with the highest systemic deficit.
+2. **Board of Studies & Academic Council Action Plan**:
+   - Recommends 3 high-impact institutional interventions:
+     - 📘 **Value-Added Elective Courses**: Proposes 2-credit intensive electives (e.g. *Cloud-Native Systems & Microservices Engineering*).
+     - 👨‍🏫 **Faculty Development Programs (FDP)**: Proposes industry immersion programs for faculty on *Modern Full-Stack Architectural Patterns*.
+     - 🔬 **Capstone Lab Syllabus Revamp**: Mandates that 30% of internal lab assessment evaluates public GitHub repositories, Dockerized runs, and automated test coverage.
+   - Provides a **1-click Markdown download** (`academic_council_curriculum_gap_audit.md`) and interactive clipboard copy.
+
+---
+
+### 8.6 Architectural Audit: Algorithmic Expert Engine vs Remote LLMs
+
+| Architectural Dimension | Algorithmic Expert System (SkillGap Tracker Engine) | Remote Cloud LLMs (OpenAI / Gemini API) |
+|---|---|---|
+| **Operational Cost** | **$0 / Free Forever** (Runs locally on CPU) | Monthly subscription bills & token usage fees |
+| **Execution Latency** | **< 20 ms** (Instantaneous UI response) | 3,000 – 6,000 ms (Visible network waiting spinner) |
+| **Offline Reliability** | **100% functional on college intranets & air-gapped lab PCs** | Fails completely during internet downtime |
+| **Data Privacy & FERPA** | **100% on-premises** (Student grades never leave the college) | Student performance sent to external third-party servers |
+| **Determinism & Auditability** | **Deterministic & reproducible** for NBA/NAAC peer teams | Nondeterministic (different outputs on every page reload) |
+| **Hallucination Risk** | **Zero hallucinations** (Strictly bound to database scores) | High risk of inventing non-existent skills or student scores |
+
+#### 8.6.1 Empirical Validation & Live Database Mutation Test Results
+The AI Copilot engine was validated through automated tests (`scratch/rigorous_ai_test.py` and `scratch/test_live_db_mutation_ai.py`):
+1. **Phase 1 (100% Deficit)**: Student at 0% readiness receives a Week 1 roadmap focused on their lowest skill, 1 fallback resume bullet, and an urgent intervention mentor tone.
+2. **Phase 2 (Partial Mastery)**: When the student marks 3 skills as Confident, the readiness score updates to 50%, the roadmap shifts to the remaining deficits, 3 real STAR resume bullets appear for the mastered skills, and the mentor tone shifts to "Steady progress".
+3. **Phase 3 (100% Benchmark)**: When all skills are Confident, the readiness score hits 100%, the roadmap transforms into an alumni Tier-1 interview guide, and the mentor tone switches to "Commendable progress".
+
+#### 8.6.2 Optional Hybrid Cloud LLM Extension
+For institutions desiring free-form conversational essay writing, the engine supports a **Hybrid AI Architecture**:
+- If an environment secret (`GEMINI_API_KEY` or `OPENAI_API_KEY`) is detected in `.env` or Streamlit Secrets, the engine can optionally invoke Google Gemini 1.5 Flash or OpenAI GPT-4o for narrative variations.
+- If no API key is configured, the system seamlessly uses the local zero-cost Algorithmic Expert Engine without any breaking errors.
 
 ---
 

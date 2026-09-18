@@ -4,6 +4,26 @@ A modern, production-grade college employability readiness and placement analyti
 
 ---
 
+## 🧠 Multi-Persona AI Placement Intelligence Suite
+
+Unified across both Flask and Streamlit portals:
+1. **👨‍🎓 Student Autonomous Career Accelerator**:
+   - **30-Day Sprint Roadmap**: Week-by-week prioritized recovery blueprint mapping real deficit skills to hands-on exercises.
+   - **Tech Interview Simulator**: 5 tailored technical interview questions with model answers and evaluation rubrics.
+   - **STAR Resume Generator**: Dynamically constructs Situation-Task-Action-Result bullet points for mastered competencies.
+   - **SMART Diagnostic Rubrics & Competency Radar**: 3 behavioral milestones per skill and Plotly spider charts against 100% industry targets.
+2. **🧑‍🏫 Faculty Mentor One-Click AI Feedback Drafter**:
+   - **Automated Diagnosis**: Reads readiness scores, target roles, and top deficits to draft structured notes with 14-day recovery roadmaps.
+   - **Smart At-Risk Alert**: Pre-checks the At-Risk flag automatically if critical deficits exceed 50%.
+3. **💼 Placement Officer (TPO) Corporate Tier Matchmaker & Recruiter Pitch**:
+   - **Predictive Corporate Tiers**: Real-time segmentation into Tier-1 (15+ LPA), Tier-2 (8–15 LPA), Tier-3 (4–8 LPA), and Remedial cohorts.
+   - **AI Recruiter Pitch**: 1-click generation of formal recruitment briefs highlighting batch strengths and NBA/NAAC compliance.
+4. **🏛️ College Administrator (Dean / HOD) AI Curriculum Gap Detector**:
+   - **Institutional Syllabus Audit**: Analyzes batch performance distributions to detect systemic curriculum deficits.
+   - **Board of Studies Action Plan**: Recommends value-added electives, Faculty Development Programs (FDP), and capstone lab modernizations.
+
+---
+
 ## 🚀 Dual Deployment Modes
 
 ### Mode 1: Streamlit Cloud (Fastest 1-Click Hosting)
